@@ -4,19 +4,38 @@
 <script>
 //https://stackoverflow.com/questions/3923089/can-i-conditionally-change-the-character-entered-into-an-input-on-keypress/3923320#3923320
 
+var latinLetters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+var greekLetters = ["α","β","ψ","δ","ε","φ","γ","η","ι","ξ","κ","λ","μ","ν","ο","π","","ρ","σ","τ","θ","ω","ς","χ","υ","ζ","Α","Β","Ψ","Δ","Ε","Φ","Γ","Η","Ι","Ξ","Κ","Λ","Μ","Ν","Ο","Π","","Ρ","Σ","Τ","Θ","Ω","Σ","Χ","Υ","Ζ"];
+
+var forceLowercase = true;
+
 function transformTypedChar(origChars, key) {
 
 	var charsToReplace = 0;
 	var mappedChar = "";
-    if (origChars.length > 0 && origChars == "a" && key == "1") {
-    	mappedChar = "á"
+    if (origChars.length > 0 && origChars == "α" && key == "1") {
+    	mappedChar = "ά"
     	charsToReplace = 1;
     }
-    else if (origChars.length > 0 && origChars == "á" && key == "1") {
-    	mappedChar = "a"
+    else if (origChars.length > 0 && origChars == "ά" && key == "1") {
+    	mappedChar = "α"
     	charsToReplace = 1;
     }
     return [charsToReplace, mappedChar];
+}
+
+function transliterate(char)
+{
+	var theChar = (forceLowercase) ? char.toLowerCase() : char;
+	var idx = latinLetters.indexOf(theChar);
+	if (idx > -1)
+	{
+		return greekLetters[idx];
+	}
+	else
+	{
+		return char;
+	}
 }
 
 function accentSyllable(evt) {
@@ -25,8 +44,22 @@ function accentSyllable(evt) {
 
     // Ensure we only handle printable keys, excluding enter and space
     var charCode = typeof evt.which == "number" ? evt.which : evt.keyCode;
-    //console.log(charCode);
-    if (charCode && charCode > 47 && charCode < 58) { //0-9 are 48-57
+    console.log(charCode);
+
+    if (charCode && charCode > 64 && charCode < 123)
+    {
+	    var start = this.selectionStart;
+        var end = this.selectionEnd;
+    	var key = String.fromCharCode(charCode);
+
+    	var mappedChar = transliterate(key);
+    	var charsToReplace = 0;
+	    this.value = val.slice(0, start - charsToReplace) + mappedChar + val.slice(end);
+        // Move the caret
+        this.selectionStart = this.selectionEnd = start + 1 - charsToReplace;
+        return false;
+    }
+    else if (charCode && charCode > 47 && charCode < 58) { //0-9 are 48-57
         var key = String.fromCharCode(charCode);
 
         var start, end;
