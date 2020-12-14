@@ -1,6 +1,9 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<script src="https://code.jquery.com/jquery-1.12.4.min.js"
+integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
+crossorigin="anonymous"></script>
 <script>
 //https://stackoverflow.com/questions/3923089/can-i-conditionally-change-the-character-entered-into-an-input-on-keypress/3923320#3923320
 
@@ -43,7 +46,7 @@ function accentSyllable(evt) {
     evt = evt || window.event;
 
     // Ensure we only handle printable keys, excluding enter and space
-    var charCode = typeof evt.which == "number" ? evt.which : evt.keyCode;
+    var charCode = typeof(evt.which) == "number" ? evt.which : evt.keyCode;
     console.log(charCode);
 
     if (charCode && charCode > 64 && charCode < 123)
@@ -63,7 +66,7 @@ function accentSyllable(evt) {
         var key = String.fromCharCode(charCode);
 
         var start, end;
-        if (typeof this.selectionStart == "number" && typeof this.selectionEnd == "number") {
+        if (typeof(this.selectionStart) == "number" && typeof(this.selectionEnd) == "number") {
         	//console.log("1111");
             // Non-IE browsers and IE 9
             start = this.selectionStart;
@@ -117,14 +120,53 @@ function accentSyllable(evt) {
 
 function start()
 {
-	document.getElementById("abc").onkeypress = accentSyllable;
-	document.getElementById("def").onkeypress = accentSyllable;
+	//document.getElementById("abc1").onkeypress = accentSyllable;
+	//document.getElementById("abc2").onkeypress = accentSyllable;
+	$(".gkinput").keypress(accentSyllable);
 }
 
 </script>
+<style>
+.gkinput {
+width: 96%;
+height: 44px;
+font-size: 20pt;
+border-radius: 11px;
+margin: 5px;
+padding-left: 9px;
+border: 0px solid #666;
+}
+.colheader {
+	text-align:center;
+}
+BODY {font-family:helvetica,arial;background-color:#ddd;}
+</style>
 </head>
 <body onload="start()">
-	<input type="text" id="abc"/><br>
-	<input type="text" id="def"/>
+	<table cellpadding=0 cellspacing=0 style="width:99%;">
+		<tr><td></td><td class="colheader">Active</td><td class="colheader">Middle</td><td class="colheader">Passive</td></tr>
+		<tr><td>Present Indicative</td>
+			<td>
+				<input type="text" id="abc1" class="gkinput"/>
+			</td>
+			<td>
+				<input type="text" id="abc2" class="gkinput"/>
+			</td>
+			<td>
+				<input type="text" id="abc3" class="gkinput"/>
+			</td>
+		</tr>
+		<tr><td>Future Indicative</td>
+			<td>
+				<input type="text" id="abc4" class="gkinput"/>
+			</td>
+			<td>
+				<input type="text" id="abc5" class="gkinput"/>
+			</td>
+			<td>
+				<input type="text" id="abc6" class="gkinput"/>
+			</td>			
+		</tr>
+	</table>
 </body>
 </html>
