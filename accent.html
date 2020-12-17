@@ -3,7 +3,9 @@
 <head>
 <meta charset="UTF-8">
 <script>
-
+	/*
+	var myArray;
+	var accentSyllable;
 
   (async () => {
     const response = await fetch("accent.wasm");
@@ -11,25 +13,75 @@
     const wasm = await WebAssembly.instantiate(file);
     const { memory, accentSyllable2 } = wasm.instance.exports;
 
-    const myArray = new Uint16Array(memory.buffer, 0, 1024);
-    var a = document.getElementById("start").innerHTML;
+    myArray = new Uint16Array(memory.buffer, 0, 1024);
+    accentSyllable = accentSyllable2;
+
+
+    document.getElementById("b").onclick = test;
+  })();
+*/
+  function test()
+  {
+  	var a = document.getElementById("start").innerHTML;
     var chars = a.codePointAt(0);
     myArray[0] = chars;//0x03B1;
     var len = 0;
     len = accentSyllable2(myArray.byteOffset, 1, 2);
 
-    var res = "s: " + myArray[0].toString(16) + ", l: " + len;
+    var res = "codepoint: " + myArray[0].toString(16) + ", length: " + len;
     console.log(res);
     document.getElementById("label").innerHTML = String.fromCodePoint(myArray[0]);
     document.getElementById("data").innerHTML = res;
+  }
 
+    // Check for wasm support.
+    if (!('WebAssembly' in window)) {
+      alert('you need a browser with wasm support enabled :(');
+    }
 
-  })();
+    // Loads a WebAssembly dynamic library, returns a promise.
+    // imports is an optional imports object
+    function loadWebAssembly(filename, imports) {
+      // Fetch the file and compile it
+const importObject = {
+  imports: {
+    imported_func: function(arg) {
+      console.log(arg);
+    }
+  }
+};
+      return fetch(filename)
+        .then(response => response.arrayBuffer())
+        .then(buffer => WebAssembly.compile(buffer))
+        .then(module => {
+          // Create the instance.
+          return WebAssembly.instantiate(module);
+        });
+    }
+
+var myArray;
+var accentSyllable2;
+    // Main part of this example, loads the module and uses it.
+    loadWebAssembly('accent.wasm')
+      .then(instance => {
+        var exports = instance.exports; // the exports of that instance
+        accentSyllable2 = exports.accentSyllable2; // the "doubler" function (note "_" prefix)
+        var memory = exports.memory;
+
+        myArray = new Uint16Array(memory.buffer, 0, 1024);
+
+        // now we are ready, set up the button so the user can run the code
+        var button = document.getElementById('b');
+        button.value = 'Call a method in the WebAssembly module';
+        button.addEventListener('click', test);
+      }
+    );
 </script>
 </head>
 <body>
 	<div id="start">ω</div>
 	<div id="label"></div>
 	<div id="data"></div>
+	<button id="b">test</button>
 </body>
 </html>

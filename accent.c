@@ -1640,18 +1640,8 @@ UCS2 getSpacingDiacritic(int diacritic)
             return 0;
     }
 }
-/*
-int blah()
-{
-    return 0x03A1;
-}
 
-int accentSyllable3(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, int unicodeMode)
-{
-    ucs2String[0] = blah();
-    return 1;
-}
-*/
+//emcc -std=gnu99 -s STANDALONE_WASM -s EXPORTED_FUNCTIONS="['_accentSyllable2']" -Wl,--no-entry "utilities.c" "accent.c" -o "accent.wasm"
 int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd)
 {
     accentSyllable(ucs2String, 0, &len, accentToAdd, 1, 0);
