@@ -13,7 +13,7 @@
 //#include <stdlib.h> // For random(), RAND_MAX
 //#include <string.h>  //for strlen()
 #ifdef NOTWASM
-#include <assert.h>
+
 #include <string.h>
 #include <android/log.h>
 #endif
@@ -943,507 +943,9 @@ int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *a)
             return ACCENTABLE_CHAR;
         }
     }
-    //assert(1 == 2); //always assert if we get to here
+    
     return NOCHAR;
 }
-/*
-int a()
-{
-    while (scanLetter(<#UCS2 *ucs2String#>, <#int i#>, <#int len#>, <#UCS2 *letterCode#>, <#int *accentBitMask#>))
-        ;
-    
-    return 0;
-}
-
-int scanLetter(UCS2 *ucs2String, int len, UCS2 *letterCode, int *accentBitMask, UCS2 *end)
-{
-    UCS2 l;
-    int a;
-    int letterLen = 0;
-    int r = analyzePrecomposedLetter(*ucs2String, &l, &a);
-    if (r == NOT_ACCENTABLE_CHAR)
-    {
-        *letterCode = l;
-        letterLen = 1;
-    }
-    else if (r == ACCENTABLE_CHAR)
-    {
-        *letterCode = l;
-        *accentBitMask = a;
-        letterLen = 1;
-        while ( isCombiningDiacritic( *(++ucs2String) ) )
-        {
-            //need to add this diacritic to accenBitmask
-            letterLen++;
-        }
-    }
-    else if (r == NOCHAR)
-    {
-        //return letterLen;
-    }
-    end = ucs2String;
-    return letterLen;
-}
-*/
-
-#ifdef NOTWASM
-//this function takes a utf8 string argument a and fills
-//buffer with a string representing the hex codepoints of
-//each character up to bufferLen - 1.
-int hcucHex(const unsigned char *a, int bufferLen, char *buffer)
-{
-    int uc_a = 0;
-    char *p = buffer;
-    int len = 0;
-    for( ; *a ; )
-    {
-        uc_a = utf8_to_ucs2 (a, &a);
-        if (uc_a == -1)
-        {
-            #ifdef NOTWASM
-            assert(uc_a > -1);
-            #endif
-            return -1; //error
-        }
-        else
-        {
-        //https://stackoverflow.com/questions/11718573/snprintf-in-a-loop-does-not-work-on-linux
-            int res = snprintf(p+len, bufferLen - len, "%04X ", uc_a);
-            if (res < 0) // -1 on error
-            {
-                break;
-            }
-            else //else # chars written
-            {
-                len += res;
-                if (len >= bufferLen)
-                {
-                    break;
-                }
-            }
-        }
-    }
-    return 1;
-}
-#endif
-
-//strip diacritics and other chars
-int toAlphaSort(char *str, char *buffer, int bufferLen)
-{
-    
-    return 1;
-}
-
-#ifdef NOTWASM
-int stripAccentSQL(const unsigned char *a, int bufferLen, char *buffer)
-{
-    int uc_a = 0;
-    char *p = buffer;
-    int len = 0;
-    for( ; *a ; )
-    {
-        uc_a = utf8_to_ucs2 (a, &a);
-        if (uc_a == -1)
-        {
-            #ifdef NOTWASM
-            assert(uc_a > -1);
-            #endif
-            return -1; //error
-        }
-        else
-        {
-        //https://stackoverflow.com/questions/11718573/snprintf-in-a-loop-does-not-work-on-linux
-            int res = snprintf(p+len, bufferLen - len, "%04X ", uc_a);
-            if (res < 0) // -1 on error
-            {
-                break;
-            }
-            else //else # chars written
-            {
-                len += res;
-                if (len >= bufferLen)
-                {
-                    break;
-                }
-            }
-        }
-    }
-    return 1;
-}
-#endif
-
-int add (int first, int second)
-{
-  return first + second;
-}
-
-//this function returns 1 if the utf8 string a contains
-//any private-use area characters, 0 otherwise
-int hccontainsPUA(const unsigned char *a)
-{
-    int uc_a = 0;
-    for( ; *a ; )
-    {
-        uc_a = utf8_to_ucs2 (a, &a);
-        if (uc_a == -1)
-        {
-            #ifdef NOTWASM
-            assert(uc_a > -1);
-            #endif
-            return 1; //error
-        }
-        else
-        {
-            if (uc_a >= 0xEAF0 && uc_a <= 0xEB80)
-            {
-                int offset = uc_a - 0xEAF0;
-                int returnChar = puaGreekLookUp[offset][0];
-                if (returnChar != NOCHAR)
-                {
-                    return 1;
-                }
-            }
-        }
-    }
-    return 0;
-}
-
-
-/*
- get a char or aend
-    get b char or bend
-    if both not at end compare, if same and not at end continue, else return
- if one or both at end, equal if both, else compare return
- 
- if we get to the end of a, we still need to go through b one more time to see if they are the same length
- 
-*/
-//returns -1 if a is before b, 0 if equal, 1 if b is before a
-//skip everything until real greek char, then stop at first non-greek or end
-//maybe only comma should cause end of lemma?
-int compareSort(int len_a, const unsigned char *a, int len_b, const unsigned char *b)
-{
-    //take care of zero length arguments
-    if (len_a < 1 && len_b < 1)
-    {
-        return 0;
-    }
-    else if (len_a < 1)
-    {
-        return -1;
-    }
-    else if (len_b < 1)
-    {
-        return 1;
-    }
-    
-    int uc_a = 0; //int because UCS2 is unsigned
-    int uc_b = 0; //int because UCS2 is unsigned
-    int type_a = 0;
-    int type_b = 0;
-    UCS2 base_a = 0; //the base chars
-    UCS2 base_b = 0; //the base chars
-    unsigned diacritics_a = 0;
-    unsigned diacritics_b = 0;
-    int idx_a = 0;
-    int idx_b = 0;
-    const unsigned char *end_a;
-    const unsigned char *end_b;
-    bool seenOne_a = false;
-    bool seenOne_b = false;
-
-    for( ; idx_a < len_a ; )
-    {
-        uc_a = utf8_to_ucs2 (a, &end_a);
-        idx_a += (end_a - a);
-        a = end_a;
-        if (uc_a == -1)
-        {
-            #ifdef NOTWASM
-            assert(uc_a > -1); //bad utf8
-            #endif
-            //return -1; //error
-            //continue;
-            idx_a = len_a;
-            break;
-        }
-        else
-        {
-            /*
-            if (uc_a == 0x0020 || uc_a == 0x002C || uc_a == 0x2014 || uc_a == 0x002D || uc_a == 0x002E)
-            {
-                continue;
-            }*/
-            if (isCombiningDiacritic(uc_a))
-            {
-                if (idx_a >= len_a)
-                {
-                    goto FALLTHROUGH; //
-                }
-                else
-                {
-                    continue;
-                }
-                //fallThrough = true;
-                
-            }
-            
-            base_a = 0; //reset for debugging
-            type_a = analyzePrecomposedLetter(uc_a, &base_a, &diacritics_a);
-            if (type_a == NOCHAR)
-            {
-                //fprintf(stderr, "CompA: %.*s AA %04X -> %04X\n", len_a, aa, uc_a, base_a);
-                if (!seenOne_a)
-                {
-                    continue;
-                }
-                else
-                {
-                    //stop, is end
-                    idx_a = len_a;
-                }
-            }
-            else if (!seenOne_a)
-            {
-                seenOne_a = true;
-            }
-            
-            //get sort order for base characters
-            int sort_a = 0;
-            int sort_b = 0;
-            if (type_a != NOCHAR)
-            {
-                if (base_a >= 0x0370 && base_a <= 0x03FF)
-                {
-                    sort_a = basicGreekLookUp[base_a - 0x0370][2];
-                    if (sort_a < 1)
-                    {
-                        continue;
-                    }
-                }
-                else
-                {
-                    if (!seenOne_a)
-                    {
-                        continue;
-                    }
-                    else
-                    {
-                        //stop, is end
-                        idx_a = len_a;
-                        break;
-                    }
-                }
-            }
-        FALLTHROUGH:
-            for( ; idx_b < len_b ; )
-            {
-                uc_b = utf8_to_ucs2 (b, &end_b);
-                //printf("1 index %d, %d, %04X\n", idx_b, len_b, uc_b);
-                idx_b += (end_b - b);
-                //printf("AAA: %d\n", (bp - b));
-                b = end_b;
-                if (uc_b == -1)
-                {
-                    #ifdef NOTWASM
-                    assert(uc_b > -1);
-                    #endif
-                    //return -1; //error
-                    //continue;
-                    idx_b = len_b;
-                    break;
-                }
-                else
-                {
-                    /*
-                    if (uc_b == 0x0020 || uc_b == 0x002C || uc_b == 0x2014 || uc_b == 0x002D || uc_b == 0x002E)
-                    {
-                        if (idx_b == len_b )
-                        {
-                            return 1; //last char in b is one to skip
-                        }
-                        else
-                        {
-                            continue;
-                        }
-                    }*/
-                    if (isCombiningDiacritic(uc_b))
-                    {
-                        continue;
-                    }
-                    
-                    base_b = 0; //reset for debugging
-                    type_b = analyzePrecomposedLetter(uc_b, &base_b, &diacritics_b);
-                    if (type_b == NOCHAR)
-                    {
-                        //fprintf(stderr, "CompB %.*s AA %04X -> %04X\n", len_b, bb, uc_b, base_b);
-                        if (!seenOne_b)
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            //stop is end
-                            idx_b = len_b;
-                            break;
-                        }
-                    }
-                    else if (!seenOne_b)
-                    {
-                        seenOne_b = true;
-                    }
-                    
-                    //get sort order for base characters
-                    sort_b = 0;
-                    if (base_b >= 0x0370 && base_b <= 0x03FF)
-                    {
-                        sort_b = basicGreekLookUp[base_b - 0x0370][2];
-                        if (sort_b > 0)
-                        {
-                            //printf("B1: %04x\n", base_b);
-                            break;
-                        }
-                        else
-                        {
-                            //stop, is end
-                            idx_b = len_b;
-                            //printf("B2: %04x\n", base_b);
-                            break;
-                        }
-                    }
-                    else
-                    {
-                        if (!seenOne_b)
-                        {
-                            continue;
-                        }
-                        else
-                        {
-                            //stop, is end
-                            idx_b = len_b;
-                            break;
-                        }
-                    }
-                    
-                }
-            }
-            /*
-            if (sort_a < 1 || sort_b < 1 || idx_b >= len_b || idx_a >= len_a)
-            {
-                if ((idx_a == len_a ) && (idx_b == len_b ))
-                {
-                    return 0;
-                }
-                else if (idx_a == len_a )
-                {
-                    return -1;
-                }
-                else if (idx_b == len_b )
-                {
-                    return 1;
-                }
-            }
-        */
-            //compare here
-            if (sort_a > sort_b)
-            {
-                return 1;
-            }
-            else if (sort_b > sort_a)
-            {
-                return -1;
-            }
-            else
-            {
-                continue;
-                /*
-                if ((idx_a == len_a ) && (idx_b == len_b ))
-                {
-                    printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX3\n");
-                    return 0;
-                }
-                else if (idx_a == len_a )
-                {
-                    printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX4\n");
-                    return -1;
-                }
-                else if (idx_b == len_b )
-                {
-                    printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX5\n");
-                    return 1;
-                }
-                else
-                {
-                    printf("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX6\n");
-                    continue;
-                }*/
-            }
-        }
-    }
-    
-    //we need to be sure b does not have any testable chars left; what if it has combining at end.
-    bool bHasMore = false;
-    for( ; idx_b < len_b ; )
-    {
-        uc_b = utf8_to_ucs2 (b, &end_b);
-        //printf("2 index %d, %d, %04X\n", idx_b, len_b, uc_b);
-        idx_b += (end_b - b);
-        //printf("AAA: %d\n", (bp - b));
-        b = end_b;
-        if (uc_b == -1)
-        {
-            #ifdef NOTWASM
-            assert(uc_b > -1);
-            #endif
-            //return -1; //error
-            //continue;
-            idx_b = len_b;
-            break;
-        }
-        else
-        {
-            if (isCombiningDiacritic(uc_b))
-            {
-                continue;
-            }
-            
-            base_b = 0; //reset for debugging
-            type_b = analyzePrecomposedLetter(uc_b, &base_b, &diacritics_b);
-            if (type_b != NOCHAR)
-            {
-                bHasMore = true;
-                break;
-            }
-            else
-            {
-                bHasMore = false;
-                 break;
-            }
-        }
-    }
-    
-    
-    if ((idx_a == len_a) && !bHasMore)
-    {
-        return 0;
-    }
-    else if (idx_a == len_a)
-    {
-        return -1;
-    }
-    else if (!bHasMore)
-    {
-        return 1;
-    }
-    else
-    {
-        #ifdef NOTWASM
-        assert(1 == 2); //error
-        #endif
-        return -1;
-    }
-}
-
 
 //return 0 for invalid letter
 UCS2 getPrecomposedLetter(int letterIndex, int diacriticMask)
@@ -2138,6 +1640,23 @@ UCS2 getSpacingDiacritic(int diacritic)
             return 0;
     }
 }
+/*
+int blah()
+{
+    return 0x03A1;
+}
+
+int accentSyllable3(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, int unicodeMode)
+{
+    ucs2String[0] = blah();
+    return 1;
+}
+*/
+int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd)
+{
+    accentSyllable(ucs2String, 0, &len, accentToAdd, 1, 0);
+    return len;
+}
 
 //there should be room for a least MAX_COMBINING more characters at the end of ucs2String, in case it needs to grow
 void accentSyllable(UCS2 *ucs2String, int i, int *len, int accentToAdd, bool toggleOff, int unicodeMode)
@@ -2305,22 +1824,22 @@ unsigned long mystrlen(const char * str)
 
 #include <stdlib.h>
 char buf[1024];
-char *accentSyllableUtf8(char *utf8, int accent, bool toggleOff)
+char *accentSyllableUtf8(char *utf8, int accent)
 {
-    int unicodeMode = 1;
     UCS2 ucs2[20];
     char *new;
     new = malloc(100);
-    unsigned long len = mystrlen(utf8);
+    unsigned long len = 0;//mystrlen(utf8);
     utf8_to_ucs2_string((unsigned char*)utf8, ucs2, (int*)&len);
 
-    accentSyllable(ucs2, 0, (int*)&len, accent, toggleOff, PRECOMPOSED_MODE);
+    accentSyllable(ucs2, 0, (int*)&len, accent, 1, PRECOMPOSED_MODE);
 
     ucs2_to_utf8_string(ucs2, (int)len, (unsigned char*)new);
-
+    /*
     new[0] = 'a';
     new[1] = 'b';
     new[2] = '\n';
+    */
     return new;
 }
 /*

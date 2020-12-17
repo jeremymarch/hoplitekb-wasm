@@ -56,7 +56,9 @@ enum {
 void allowSpacingDiacritics(bool val);
 
 void accentSyllable(UCS2 *ucs2String, int i, int *len, int accentToAdd, bool toggleOff, int unicodeMode);
-char *accentSyllableUtf8(char *utf8, int accent, bool toggleOff);
+char *accentSyllableUtf8(char *utf8, int accent);
+int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd);
+//int accentSyllable3(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, int unicodeMode);
 
 int scanLetter(UCS2 *ucs2String, int i, int len, UCS2 *letterCode, int *accentBitMask);
 int analyzeLetter(UCS2 *ucs2String, int i, int len, UCS2 *letterCode, unsigned int *accentBitMask);

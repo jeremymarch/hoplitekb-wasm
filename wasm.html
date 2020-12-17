@@ -6,6 +6,23 @@
 	//https://depth-first.com/articles/2019/10/16/compiling-c-to-webassembly-and-running-it-without-emscripten/
 	//https://surma.dev/things/c-to-webassembly/
 	// /usr/local/opt/llvm/bin/clang --target=wasm32 --no-standard-libraries -Wl,--export-all -Wl,--no-entry -o add.wasm accent.c utilities.c
+	function test()
+	{
+		const memory = new WebAssembly.Memory({ initial: 2 });
+		const arrayBuffer = memory.buffer;
+		const buffer = new Uint16Array(arrayBuffer);
+		const instance = new WebAssembly.Instance(module, {
+		    imports: {
+		        memory: memory,
+		        logString: (size, index) => {
+		            let s = "";
+		            for (let i = index; i < index + size; ++i)
+		                s += String.fromCharCode(buffer[i]);
+		            console.log(s);
+		        }
+		    }
+		});
+
       (async() => {
         const response = await fetch('add.wasm');
         const bytes = await response.arrayBuffer();
@@ -13,11 +30,15 @@
 
         console.log('The answer is: ' + instance.exports.add(1, 2));
 
-        document.getElementById("abc").innerHTML = instance.exports.accentSyllableUtf8("ω", 1, 1) ;
+        var a = new Uint16Array([0x03b4]);
+        document.getElementById("abc").innerHTML = instance.exports.accentSyllable(a, 0, 1, 1) ;
+        //document.getElementById("abc").innerHTML = instance.exports.accentSyllableUtf8("ω", 1, 1) ;
 
 
       })();
 
+
+}
   /*
   async function init() {
     const { instance } = await WebAssembly.instantiateStreaming(

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<script>
+
+
+  (async () => {
+    const response = await fetch("accent.wasm");
+    const file = await response.arrayBuffer();
+    const wasm = await WebAssembly.instantiate(file);
+    const { memory, accentSyllable2 } = wasm.instance.exports;
+
+    const myArray = new Uint16Array(memory.buffer, 0, 1024);
+    var a = document.getElementById("start").innerHTML;
+    var chars = a.codePointAt(0);
+    myArray[0] = chars;//0x03B1;
+    var len = 0;
+    len = accentSyllable2(myArray.byteOffset, 1, 2);
+
+    var res = "s: " + myArray[0].toString(16) + ", l: " + len;
+    console.log(res);
+    document.getElementById("label").innerHTML = String.fromCodePoint(myArray[0]);
+    document.getElementById("data").innerHTML = res;
+
+
+  })();
+</script>
+</head>
+<body>
+	<div id="start">ω</div>
+	<div id="label"></div>
+	<div id="data"></div>
+</body>
+</html>

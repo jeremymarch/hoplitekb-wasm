@@ -7,10 +7,24 @@ crossorigin="anonymous"></script>
 <script>
 //https://stackoverflow.com/questions/3923089/can-i-conditionally-change-the-character-entered-into-an-input-on-keypress/3923320#3923320
 
-var latinLetters = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
-var greekLetters = ["α","β","ψ","δ","ε","φ","γ","η","ι","ξ","κ","λ","μ","ν","ο","π","","ρ","σ","τ","θ","ω","ς","χ","υ","ζ","Α","Β","Ψ","Δ","Ε","Φ","Γ","Η","Ι","Ξ","Κ","Λ","Μ","Ν","Ο","Π","","Ρ","Σ","Τ","Θ","Ω","Σ","Χ","Υ","Ζ"];
+var la = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
+var gr = ["α","β","ψ","δ","ε","φ","γ","η","ι","ξ","κ","λ","μ","ν","ο","π","","ρ","σ","τ","θ","ω","ς","χ","υ","ζ","Α","Β","Ψ","Δ","Ε","Φ","Γ","Η","Ι","Ξ","Κ","Λ","Μ","Ν","Ο","Π","","Ρ","Σ","Τ","Θ","Ω","Σ","Χ","Υ","Ζ"];
 
 var forceLowercase = true;
+
+function transliterate(char)
+{
+	var theChar = (forceLowercase) ? char.toLowerCase() : char;
+	var idx = la.indexOf(theChar);
+	if (idx > -1)
+	{
+		return gr[idx];
+	}
+	else
+	{
+		return char;
+	}
+}
 
 function transformTypedChar(origChars, key) {
 
@@ -27,27 +41,12 @@ function transformTypedChar(origChars, key) {
     return [charsToReplace, mappedChar];
 }
 
-function transliterate(char)
-{
-	var theChar = (forceLowercase) ? char.toLowerCase() : char;
-	var idx = latinLetters.indexOf(theChar);
-	if (idx > -1)
-	{
-		return greekLetters[idx];
-	}
-	else
-	{
-		return char;
-	}
-}
-
 function accentSyllable(evt) {
     var val = this.value;
     evt = evt || window.event;
 
-    // Ensure we only handle printable keys, excluding enter and space
     var charCode = typeof(evt.which) == "number" ? evt.which : evt.keyCode;
-    console.log(charCode);
+    //console.log(charCode);
 
     if (charCode && charCode > 64 && charCode < 123)
     {
@@ -118,52 +117,60 @@ function accentSyllable(evt) {
     return true;
 }
 
-function start()
-{
-	//document.getElementById("abc1").onkeypress = accentSyllable;
-	//document.getElementById("abc2").onkeypress = accentSyllable;
+function start() {
 	$(".gkinput").keypress(accentSyllable);
 }
 
 </script>
 <style>
 .gkinput {
-width: 96%;
-height: 44px;
-font-size: 20pt;
-border-radius: 11px;
-margin: 5px;
-padding-left: 9px;
-border: 0px solid #666;
+	width: 100%;
+	height: 40px;
+	font-size: 20pt;
+	border-radius: 6px;
+	margin: 5px;
+	padding-left: 9px;
+	border: 0px solid #666;
 }
 .colheader {
 	text-align:center;
 }
-BODY {font-family:helvetica,arial;background-color:#ddd;}
+BODY {
+	font-family:helvetica,arial;
+	background-color:#ddd;
+}
+.formcell {padding:6px;}
 </style>
 </head>
 <body onload="start()">
+	<h3>Synopsis of: <u>φέρω</u></h3>
 	<table cellpadding=0 cellspacing=0 style="width:99%;">
-		<tr><td></td><td class="colheader">Active</td><td class="colheader">Middle</td><td class="colheader">Passive</td></tr>
-		<tr><td>Present Indicative</td>
-			<td>
+		<tr>
+			<td>Principal Parts</td>
+			<td colspan=3  class="formcell">
 				<input type="text" id="abc1" class="gkinput"/>
 			</td>
-			<td>
+		</tr>
+		<tr><td></td><td class="colheader">Active</td><td class="colheader">Middle</td><td class="colheader">Passive</td></tr>
+		<tr><td>Present Indicative</td>
+			<td class="formcell">
+				<input type="text" id="abc1" class="gkinput"/>
+			</td>
+			<td class="formcell">
 				<input type="text" id="abc2" class="gkinput"/>
 			</td>
-			<td>
+			<td class="formcell">
 				<input type="text" id="abc3" class="gkinput"/>
 			</td>
 		</tr>
 		<tr><td>Future Indicative</td>
-			<td>
+			<td class="formcell">
 				<input type="text" id="abc4" class="gkinput"/>
 			</td>
-			<td>
+			<td class="formcell">
 				<input type="text" id="abc5" class="gkinput"/>
 			</td>
-			<td>
+			<td class="formcell">
 				<input type="text" id="abc6" class="gkinput"/>
 			</td>			
 		</tr>
