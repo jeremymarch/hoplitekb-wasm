@@ -1644,7 +1644,7 @@ UCS2 getSpacingDiacritic(int diacritic)
 //emcc -std=gnu99 -s STANDALONE_WASM -s EXPORTED_FUNCTIONS="['_accentSyllable2']" -Wl,--no-entry "utilities.c" "accent.c" -o "accent.wasm"
 int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd)
 {
-    accentSyllable(ucs2String, 0, &len, accentToAdd, 1, 0);
+    accentSyllable(ucs2String, 0, &len, accentToAdd, 1, 1);
     return len;
 }
 
