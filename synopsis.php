@@ -74,37 +74,29 @@ function transliterate(char)
 }
 
 function transformTypedChar(origChars, key) {
-	var charsToReplace = 0;
-	var mappedChar = "";
-	/*
-    if (origChars.length > 0 && origChars == "α" && key == "1") {
-    	mappedChar = "ά"
-    	charsToReplace = 1;
-    }
-    else if (origChars.length > 0 && origChars == "ά" && key == "1") {
-    	mappedChar = "α"
-    	charsToReplace = 1;
-    }
-*/
-
-    var chars = origChars.codePointAt(0);
-    myArray[0] = chars;//0x03B1;
-    var len = 0;
-    len = accentSyllable2(myArray.byteOffset, 1, key, 1, 1);
-
-
-
-	var s = "";
-	var debug = "";
+	var len = origChars.length;
+	var debug = "Before: ";
 	for (var i = 0; i < len; i++) {
-		s += String.fromCodePoint(myArray[i]);
+		myArray[i] = origChars.codePointAt(i);
 		debug += myArray[i].toString(16) + ", ";
 	}
 	debug += "len: " + len;
-	//var res = "codepoint: " + myArray[0].toString(16) + ", length: " + len;
 	console.log(debug);
 
-    return [len, s];
+    
+    len = accentSyllable2(myArray.byteOffset, len, key, 1, 2);
+
+
+	var newLetter = "";
+	var debug = "After: ";
+	for (var i = 0; i < len; i++) {
+		newLetter += String.fromCodePoint(myArray[i]);
+		debug += myArray[i].toString(16) + ", ";
+	}
+	debug += "len: " + len;
+	console.log(debug);
+
+    return [len, newLetter];
 }
 
 function accentSyllable(evt) {
@@ -171,15 +163,30 @@ function accentSyllable(evt) {
                     hckey = 1;
                     break;
             }
-	        var ret = transformTypedChar(val.slice(start - 1, start), hckey.toString());
+            var combining = [0x0300, 0x0301, 0x0304, 0x0306, 0x0308, 0x0313, 0x0314, 0x0323, 0x0342, 0x0345];
+            var off = 1;
+            for (var i = start; i > -1; i--)
+            {
+            	if (combining.indexOf(val.codePointAt(i - 1)) > -1)
+            	{
+            		off++;
+            		//alert( val.codePointAt(i - 1));// == 0x0345)
+            	}
+            	else
+            	{
+            		break;
+            	}
+            }
+	        var ret = transformTypedChar(val.slice(start - off, start), hckey.toString());
 	        var mappedChar = ret[1];
-	        var charsToReplace = ret[0];
+	        var charsToReplace = start - (start - off);//ret[0];
  
-            if (charsToReplace > 0 && mappedChar != "")
+            if (ret[0] > 0 && mappedChar != "")
             {
 	            this.value = val.slice(0, start - charsToReplace) + mappedChar + val.slice(end);
 	            // Move the caret
-	            this.selectionStart = this.selectionEnd = start + charsToReplace;
+	            console.log("start: " + start + ", old: " + charsToReplace + ", " + ret[0]);
+	            this.selectionStart = this.selectionEnd = (start - charsToReplace) + ret[0];
         	}
 
         } else if (document.selection && document.selection.createRange) {
