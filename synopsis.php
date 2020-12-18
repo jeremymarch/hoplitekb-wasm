@@ -58,22 +58,18 @@ function transliterate(char)
 
 function accentSyllable(origChars, key) {
 	var len = origChars.length;
-	//var debug = "Before: ";
+	//add letter and any combining diacritics to the buffer as code points
 	for (var i = 0; i < len; i++) {
 		wasmBuffer[i] = origChars.codePointAt(i);
-		//debug += wasmBuffer[i].toString(16) + ", ";
 	}
-	//debug += "len: " + len;
-	//console.log(debug);
+
     len = accentSyllableWASM(wasmBuffer.byteOffset, len, key, 1, 1);
+
+    //transform the returned code points back to a string
 	var newLetter = "";
-	//var debug = "After: ";
 	for (var i = 0; i < len; i++) {
 		newLetter += String.fromCodePoint(wasmBuffer[i]);
-		//debug += wasmBuffer[i].toString(16) + ", ";
 	}
-	//debug += "len: " + len;
-	//console.log(debug);
     return [len, newLetter];
 }
 
@@ -82,7 +78,6 @@ function handleKey(evt) {
     evt = evt || window.event;
 
     var charCode = typeof(evt.which) == "number" ? evt.which : evt.keyCode;
-    //console.log(charCode);
 
     if (charCode && charCode > 64 && charCode < 123) //letter
     {
@@ -97,44 +92,41 @@ function handleKey(evt) {
         this.selectionStart = this.selectionEnd = start + 1 - charsToReplace;
         return false;
     }
-    else if (charCode && charCode > 47 && charCode < 58) { //number: 0-9 are 48-57
+    else if (charCode && charCode > 48 && charCode < 58) { //number: 0-9 are 48-57
         var key = String.fromCharCode(charCode);
         var hckey = 0;
         switch( parseInt(key) ) {
             case 1:
-                hckey = 5;
+                hckey = 5; //rough
                 break;
             case 2:
-                hckey = 6;
+                hckey = 6; //smooth
                 break;
             case 3:
-                hckey = 1;
+                hckey = 1; //acute
                 break;
             case 4:
-                hckey = 3;
+                hckey = 3; //grave
                 break;
             case 5:
-                hckey = 2;
+                hckey = 2; //circumflex
                 break;
             case 6:
-                hckey = 4;
+                hckey = 4; //macron
                 break;
             case 7:
-                hckey = 10;
+                hckey = 10; //breve
                 break;
             case 8:
-                hckey = 7;
+                hckey = 7; //iota subscript
                 break;
             case 9:
-                hckey = 9;
-                break;
-            case 0:
-                hckey = 1;
+                hckey = 9; //diaeresis
                 break;
         }
         var start, end;
         if (typeof(this.selectionStart) == "number" && typeof(this.selectionEnd) == "number") {
-            // Non-IE browsers and IE 9
+            // Non-IE browsers and IE 9+
             start = this.selectionStart;
             end = this.selectionEnd;
 
@@ -150,14 +142,14 @@ function handleKey(evt) {
             	}
             }
 	        var ret = accentSyllable(val.slice(start - off, start), hckey.toString());
-	        var mappedChar = ret[1];
+	        var newLetter = ret[1];
 	        var charsToReplace = start - (start - off);
  
-            if (ret[0] > 0 && mappedChar != "")
+            if (ret[0] > 0 && newLetter != "")
             {
-	            this.value = val.slice(0, start - charsToReplace) + mappedChar + val.slice(end);
+            	//update the input/textarea
+	            this.value = val.slice(0, start - charsToReplace) + newLetter + val.slice(end);
 	            // Move the caret
-	            //console.log("start: " + start + ", old: " + charsToReplace + ", " + ret[0]);
 	            this.selectionStart = this.selectionEnd = (start - charsToReplace) + ret[0];
         	}
 
