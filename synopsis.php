@@ -31,7 +31,7 @@ function loadWebAssembly(filename, imports) {
 
 var wasmBuffer;
 var accentSyllableWASM;
-loadWebAssembly('accent.wasm')
+loadWebAssembly('hoplitekb.wasm')
   .then(instance => {
     var exports = instance.exports;
     accentSyllableWASM = exports.accentSyllable2;
