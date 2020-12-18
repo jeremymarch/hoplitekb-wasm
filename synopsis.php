@@ -225,13 +225,31 @@ function submitSynopsis()
 {
 	var json = new Object();
 	json.r = new Array();
-	$(".gkinput").each(function(){
-		var r = new Object();
-		r.i = this.id;
-		r.a = this.value;
-		json.r.push(r);
+	$(".gkinput").each(function(){	
+		//alert(parseInt(this.id.substring(6)));
+		json.r[ parseInt(this.id.substring(6)) ] = this.value.trim();
 	});
-	alert(JSON.stringify(json));
+	
+	//console.log(JSON.stringify(json));
+
+    $.ajax({
+		url: "synopsissave.php",
+		type: "POST",
+		data: {rese:JSON.stringify(json)},
+		dataType: "text",//JSON automatically deserializes json
+		success: function (data, textStatus, jqXHR){ 
+			//procResponse(data, textStatus); 
+			//showToast("success: " + data);
+			//alert(data);
+		},
+		error: function(response) {
+			//getwords(url); //redo request on error
+			//showToast("error");
+			//alert(response);
+		}
+    });
+
+	//alert(JSON.stringify(json));
 }
 
 </script>
@@ -284,7 +302,7 @@ padding: 3px;
 		<tr>
 			<td>Principal Parts</td>
 			<td colspan=3  class="formcell">
-				<input type="text" id="pp" class="gkinput"/>
+				<input type="text" id="pppppp0" class="gkinput"/>
 			</td>
 		</tr>
 		<tr><td></td><td class="colheader">Active</td><td class="colheader">Middle</td><td class="colheader">Passive</td></tr>
