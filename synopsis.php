@@ -31,7 +31,7 @@ const importObject = {
         });
     }
 
-var myArray;
+var wasmBuffer;
 var accentSyllable2;
     // Main part of this example, loads the module and uses it.
     loadWebAssembly('accent.wasm')
@@ -40,7 +40,7 @@ var accentSyllable2;
         accentSyllable2 = exports.accentSyllable2; // the "doubler" function (note "_" prefix)
         var memory = exports.memory;
 
-        myArray = new Uint16Array(memory.buffer, 0, 1024);
+        wasmBuffer = new Uint16Array(memory.buffer, 0, 1024);
 
         // now we are ready, set up the button so the user can run the code
         //var button = document.getElementById('b');
@@ -75,26 +75,26 @@ function transliterate(char)
 
 function transformTypedChar(origChars, key) {
 	var len = origChars.length;
-	var debug = "Before: ";
+	//var debug = "Before: ";
 	for (var i = 0; i < len; i++) {
-		myArray[i] = origChars.codePointAt(i);
-		debug += myArray[i].toString(16) + ", ";
+		wasmBuffer[i] = origChars.codePointAt(i);
+		//debug += wasmBuffer[i].toString(16) + ", ";
 	}
-	debug += "len: " + len;
-	console.log(debug);
+	//debug += "len: " + len;
+	//console.log(debug);
 
     
-    len = accentSyllable2(myArray.byteOffset, len, key, 1, 2);
+    len = accentSyllable2(wasmBuffer.byteOffset, len, key, 1, 1);
 
 
 	var newLetter = "";
-	var debug = "After: ";
+	//var debug = "After: ";
 	for (var i = 0; i < len; i++) {
-		newLetter += String.fromCodePoint(myArray[i]);
-		debug += myArray[i].toString(16) + ", ";
+		newLetter += String.fromCodePoint(wasmBuffer[i]);
+		//debug += wasmBuffer[i].toString(16) + ", ";
 	}
-	debug += "len: " + len;
-	console.log(debug);
+	//debug += "len: " + len;
+	//console.log(debug);
 
     return [len, newLetter];
 }
@@ -167,25 +167,22 @@ function accentSyllable(evt) {
             var off = 1;
             for (var i = start; i > -1; i--)
             {
-            	if (combining.indexOf(val.codePointAt(i - 1)) > -1)
-            	{
+            	if (combining.indexOf(val.codePointAt(i - 1)) > -1) {
             		off++;
-            		//alert( val.codePointAt(i - 1));// == 0x0345)
             	}
-            	else
-            	{
+            	else {
             		break;
             	}
             }
 	        var ret = transformTypedChar(val.slice(start - off, start), hckey.toString());
 	        var mappedChar = ret[1];
-	        var charsToReplace = start - (start - off);//ret[0];
+	        var charsToReplace = start - (start - off);
  
             if (ret[0] > 0 && mappedChar != "")
             {
 	            this.value = val.slice(0, start - charsToReplace) + mappedChar + val.slice(end);
 	            // Move the caret
-	            console.log("start: " + start + ", old: " + charsToReplace + ", " + ret[0]);
+	            //console.log("start: " + start + ", old: " + charsToReplace + ", " + ret[0]);
 	            this.selectionStart = this.selectionEnd = (start - charsToReplace) + ret[0];
         	}
 
@@ -309,7 +306,7 @@ padding: 3px;
 		<tr>
 			<td>Principal Parts</td>
 			<td colspan=3  class="formcell">
-				<input type="text" id="pppppp0" class="gkinput"/>
+				<input type="text" id="pppppp0" class="gkinput" spellcheck="false" autocapitalize="off" autocomplete="off"/>
 			</td>
 		</tr>
 		<tr><td></td><td class="colheader">Active</td><td class="colheader">Middle</td><td class="colheader">Passive</td></tr>
@@ -318,13 +315,13 @@ padding: 3px;
 $template = <<<EOT
 <tr><td>%LABEL%</td>
 	<td class="formcell">
-		<input type="text" id="gkform%IDa%" class="gkinput"/>
+		<input type="text" id="gkform%IDa%" class="gkinput" spellcheck="false" autocapitalize="off" autocomplete="off"/>
 	</td>
 	<td class="formcell">
-		<input type="text" id="gkform%IDb%" class="gkinput"/>
+		<input type="text" id="gkform%IDb%" class="gkinput" spellcheck="false" autocapitalize="off" autocomplete="off"/>
 	</td>
 	<td class="formcell">
-		<input type="text" id="gkform%IDc%" class="gkinput"/>
+		<input type="text" id="gkform%IDc%" class="gkinput" spellcheck="false" autocapitalize="off" autocomplete="off"/>
 	</td>
 </tr>
 EOT;
