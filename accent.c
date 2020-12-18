@@ -1641,10 +1641,11 @@ UCS2 getSpacingDiacritic(int diacritic)
     }
 }
 
+//wasm / emscripten / webassembly
 //emcc -std=gnu99 -s STANDALONE_WASM -s EXPORTED_FUNCTIONS="['_accentSyllable2']" -Wl,--no-entry "utilities.c" "accent.c" -o "accent.wasm"
-int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd)
+int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, int unicodeMode)
 {
-    accentSyllable(ucs2String, 0, &len, accentToAdd, 1, 1);
+    accentSyllable(ucs2String, 0, &len, accentToAdd, toggleOff, unicodeMode);
     return len;
 }
 
@@ -1804,7 +1805,7 @@ int compare(char *s1, char *s2)
     return 0;
 }
 */
-
+/*
 unsigned long mystrlen(const char * str)
 {
     const char *s;
@@ -1825,13 +1826,15 @@ char *accentSyllableUtf8(char *utf8, int accent)
     accentSyllable(ucs2, 0, (int*)&len, accent, 1, PRECOMPOSED_MODE);
 
     ucs2_to_utf8_string(ucs2, (int)len, (unsigned char*)new);
-    /*
-    new[0] = 'a';
-    new[1] = 'b';
-    new[2] = '\n';
-    */
+    
+    //new[0] = 'a';
+    //new[1] = 'b';
+    //new[2] = '\n';
+    
     return new;
 }
+*/
+
 /*
 #include <stdio.h>
 
