@@ -1,7 +1,9 @@
+<!DOCTYPE html>
 <html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<title>Synopsis</title>
 <script src="https://code.jquery.com/jquery-1.12.4.min.js"
 integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
 crossorigin="anonymous"></script>
@@ -351,7 +353,7 @@ for ($i = 0; $i < count($rows); $i++)
 			<tr><td>iota subscript</td><td>8</td></tr>
 			<tr><td>diaeresis</td><td>9</td></tr>
 		</table>
-
+</div>
 
 </body>
 </html>
