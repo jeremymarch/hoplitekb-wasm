@@ -92,7 +92,7 @@ function handleKey(evt) {
         this.selectionStart = this.selectionEnd = start + 1 - charsToReplace;
         return false;
     }
-    else if (charCode && charCode > 48 && charCode < 58) { //number: 0-9 are 48-57
+    else if (charCode && charCode > /*47 blocking underdot here*/48 && charCode < 58) { //number: 0-9 are 48-57
         var key = String.fromCharCode(charCode);
         var hckey = 0;
         switch( parseInt(key) ) {
@@ -122,6 +122,9 @@ function handleKey(evt) {
                 break;
             case 9:
                 hckey = 9; //diaeresis
+                break;
+            case 0:
+                hckey = 11; //underdot
                 break;
         }
         var start, end;
