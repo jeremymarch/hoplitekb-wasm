@@ -161,33 +161,7 @@ function handleKey(evt) {
 	            this.selectionStart = this.selectionEnd = (start - charsToReplace) + ret[0];
         	}
 
-        } else if (document.selection && document.selection.createRange) {
-            // For IE up to version 8
-            var selectionRange = document.selection.createRange();
-            var textInputRange = this.createTextRange();
-            var precedingRange = this.createTextRange();
-            var bookmark = selectionRange.getBookmark();
-            textInputRange.moveToBookmark(bookmark);
-            precedingRange.setEndPoint("EndToStart", textInputRange);
-            start = precedingRange.text.length;
-            end = start + selectionRange.text.length;
-
-	        var ret = accentSyllable(val.slice(start - 1, start), hckey);
-	        var mappedChar = ret[1];
-	        var charsToReplace = ret[0];
-
-            if (charsToReplace > 0 && mappedChar != "")
-            {
-	            this.value = val.slice(0, start) + mappedChar + val.slice(end);
-	            start++;
-
-	            // Move the caret
-	            textInputRange = this.createTextRange();
-	            textInputRange.collapse(true);
-	            textInputRange.move("character", start - (this.value.slice(0, start).split("\r\n").length - 1));
-	            textInputRange.select();
-	        }
-        }
+        } 
         return false;
     }
     return true;
