@@ -10,7 +10,7 @@ require("login.php");
 ob_start("ob_gzhandler");
 
 header('Content-Type: text/json; charset=utf-8');
-header("Cache-Control: no-cache"); //http://support.microsoft.com/kb/234067
+header("Cache-Control: no-cache");
 header("Expires: -1");
 
 if (isset($_POST['rese']))

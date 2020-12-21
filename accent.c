@@ -12,9 +12,13 @@
 
 //#include <stdlib.h> // For random(), RAND_MAX
 //#include <string.h>  //for strlen()
-#ifdef NOTWASM
-
+#ifndef __EMSCRIPTEN__
+#include <stdio.h>
 #include <string.h>
+
+#endif
+
+#ifdef __ANDROID__
 #include <android/log.h>
 #endif
 
@@ -1649,6 +1653,31 @@ int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, i
     return len;
 }
 
+int stripDiacritics(UCS2 *ucs2String, int len)
+{
+    UCS2 tempChar;
+    unsigned int diacritics;
+    int end = 0;
+    for (int i = 0; i < len; )
+    {
+        int x = analyzeLetter(ucs2String, i, len, &tempChar, &diacritics);
+        #ifndef __EMSCRIPTEN__
+        printf("\ti %d, (%d), len: %d\n", i, len, x);
+        #endif
+        if (x < 1) {
+            
+            ucs2String[end++] = ucs2String[i];
+            i++;
+        }
+        else {
+            i += x;
+            ucs2String[end++] = tempChar;
+        }
+    }
+    len = end;
+    return len;
+}
+
 //there should be room for a least MAX_COMBINING more characters at the end of ucs2String, in case it needs to grow
 void accentSyllable(UCS2 *ucs2String, int i, int *len, int accentToAdd, bool toggleOff, int unicodeMode)
 {
@@ -1833,16 +1862,9 @@ char *accentSyllableUtf8(char *utf8, int accent)
     
     return new;
 }
+
 */
 
-/*
-#include <stdio.h>
-
- int main(int v, char **a)
- {
-    printf("test: %s\n", accentSyllableUtf8("ω", 1, 1) );
- }
- */
 
 //helper function to make it easier to import into swift
 /*

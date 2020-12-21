@@ -5,7 +5,9 @@
 //  Created by Jeremy March on 3/4/17.
 //  Copyright © 2017 Jeremy March. All rights reserved.
 //
-
+#ifndef __EMSCRIPTEN__
+#include <stdio.h>
+#endif
 #include "utilities.h"
 
 #define UNICODE_SURROGATE_PAIR    -1
@@ -15,7 +17,7 @@
 
 void debug_msg(char *x)
 {
-    #ifdef NOTWASM
+    #ifndef __EMSCRIPTEN__
     fprintf(stderr, "%s\n", x);
     //exit(1);
     #endif
