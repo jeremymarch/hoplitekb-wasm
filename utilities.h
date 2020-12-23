@@ -11,11 +11,9 @@
 
 #include <stdbool.h>
 
-#ifdef NOTWASM
+#ifndef __EMSCRIPTEN__
 #include <stdio.h>
 #endif
-
-#define BUFFER_LEN 1024
 
 typedef unsigned short UCS2;
 

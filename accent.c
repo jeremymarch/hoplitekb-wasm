@@ -1230,32 +1230,54 @@ bool isLegalDiacriticForLetter(UCS2 letter, int accentToAdd)
     switch (accentToAdd)
     {
         case CIRCUMFLEX:
-            if (letter != GREEK_SMALL_LETTER_ALPHA && letter != GREEK_SMALL_LETTER_ETA && letter != GREEK_SMALL_LETTER_IOTA && letter != GREEK_SMALL_LETTER_UPSILON && letter != GREEK_SMALL_LETTER_OMEGA && letter != GREEK_CAPITAL_LETTER_ALPHA && letter != GREEK_CAPITAL_LETTER_ETA && letter != GREEK_CAPITAL_LETTER_IOTA && letter != GREEK_CAPITAL_LETTER_UPSILON && letter != GREEK_CAPITAL_LETTER_OMEGA)
-            {
+            if (letter != GREEK_SMALL_LETTER_ALPHA && 
+                letter != GREEK_SMALL_LETTER_ETA && 
+                letter != GREEK_SMALL_LETTER_IOTA && 
+                letter != GREEK_SMALL_LETTER_UPSILON && 
+                letter != GREEK_SMALL_LETTER_OMEGA && 
+                letter != GREEK_CAPITAL_LETTER_ALPHA && 
+                letter != GREEK_CAPITAL_LETTER_ETA && 
+                letter != GREEK_CAPITAL_LETTER_IOTA && 
+                letter != GREEK_CAPITAL_LETTER_UPSILON && 
+                letter != GREEK_CAPITAL_LETTER_OMEGA) {
                 return false;
             }
             break;
         case MACRON:
-            if (letter != GREEK_SMALL_LETTER_ALPHA && letter != GREEK_SMALL_LETTER_IOTA && letter != GREEK_SMALL_LETTER_UPSILON && letter != GREEK_CAPITAL_LETTER_ALPHA && letter != GREEK_CAPITAL_LETTER_IOTA && letter != GREEK_CAPITAL_LETTER_UPSILON)
-            {
+            if (letter != GREEK_SMALL_LETTER_ALPHA && 
+                letter != GREEK_SMALL_LETTER_IOTA && 
+                letter != GREEK_SMALL_LETTER_UPSILON && 
+                letter != GREEK_CAPITAL_LETTER_ALPHA && 
+                letter != GREEK_CAPITAL_LETTER_IOTA && 
+                letter != GREEK_CAPITAL_LETTER_UPSILON) {
                 return false;
             }
             break;
         case BREVE:
-            if (letter != GREEK_SMALL_LETTER_ALPHA && letter != GREEK_SMALL_LETTER_IOTA && letter != GREEK_SMALL_LETTER_UPSILON && letter != GREEK_CAPITAL_LETTER_ALPHA && letter != GREEK_CAPITAL_LETTER_IOTA && letter != GREEK_CAPITAL_LETTER_UPSILON)
-            {
+            if (letter != GREEK_SMALL_LETTER_ALPHA && 
+                letter != GREEK_SMALL_LETTER_IOTA && 
+                letter != GREEK_SMALL_LETTER_UPSILON && 
+                letter != GREEK_CAPITAL_LETTER_ALPHA && 
+                letter != GREEK_CAPITAL_LETTER_IOTA && 
+                letter != GREEK_CAPITAL_LETTER_UPSILON) {
                 return false;
             }
             break;
         case IOTA_SUBSCRIPT:
-            if (letter != GREEK_SMALL_LETTER_ALPHA && letter != GREEK_SMALL_LETTER_ETA && letter != GREEK_SMALL_LETTER_OMEGA && letter != GREEK_CAPITAL_LETTER_ALPHA && letter != GREEK_CAPITAL_LETTER_ETA && letter != GREEK_CAPITAL_LETTER_OMEGA)
-            {
+            if (letter != GREEK_SMALL_LETTER_ALPHA && 
+                letter != GREEK_SMALL_LETTER_ETA && 
+                letter != GREEK_SMALL_LETTER_OMEGA && 
+                letter != GREEK_CAPITAL_LETTER_ALPHA && 
+                letter != GREEK_CAPITAL_LETTER_ETA && 
+                letter != GREEK_CAPITAL_LETTER_OMEGA) {
                 return false;
             }
             break;
         case DIAERESIS:
-            if (letter != GREEK_SMALL_LETTER_IOTA && letter != GREEK_SMALL_LETTER_UPSILON && letter != GREEK_CAPITAL_LETTER_IOTA && letter != GREEK_CAPITAL_LETTER_UPSILON)
-            {
+            if (letter != GREEK_SMALL_LETTER_IOTA && 
+                letter != GREEK_SMALL_LETTER_UPSILON && 
+                letter != GREEK_CAPITAL_LETTER_IOTA && 
+                letter != GREEK_CAPITAL_LETTER_UPSILON) {
                 return false;
             }
             break;
@@ -1334,8 +1356,7 @@ unsigned int updateDiacritics(UCS2 letter, int accentToAdd, unsigned int diacrit
                 diacritics |= _UNDERDOT;
             break;
         case DIAERESIS:
-            if (letter == GREEK_CAPITAL_LETTER_IOTA || letter == GREEK_CAPITAL_LETTER_UPSILON)
-            {
+            if (letter == GREEK_CAPITAL_LETTER_IOTA || letter == GREEK_CAPITAL_LETTER_UPSILON) {
                 diacritics &= ~(_ACUTE | _GRAVE | _CIRCUMFLEX | _MACRON);
             }
             
@@ -1404,64 +1425,84 @@ int analyzeLetter(UCS2 *ucs2String, int len, UCS2 *letter, unsigned int *diacrit
 {
     int letterLen = analyzeCombiningChars(ucs2String, len, diacritics);
     
-    if (analyzePrecomposedLetter(*ucs2String, letter, diacritics) != ACCENTABLE_CHAR)
-    {
+    if (analyzePrecomposedLetter(*ucs2String, letter, diacritics) != ACCENTABLE_CHAR) {
         return -1;
     }
-    //*accentBitMask = precomposedIndexToBitMask(precomposedIndex, *accentBitMask);
     
     return letterLen;
 }
 
-bool makeLetterCombining(UCS2 *ucs2String, int *letterLen, UCS2 letter, unsigned int diacritics, int unicodeMode)
+void makeLetterCombining(UCS2 *ucs2String, int *letterLen, UCS2 letter, unsigned int diacritics, int unicodeMode)
 {
     *letterLen = 0;
     ucs2String[(*letterLen)++] = letter; //set base letter
+    
     //loop so that order is determined by combiningAccents array
     for (int k = 0; k < NUM_COMBINING_ACCENTS; k++)
     {
-        if (combiningAccents[k] == COMBINING_MACRON && (diacritics & _MACRON) == _MACRON)
-        {
+        if (combiningAccents[k] == COMBINING_MACRON && (diacritics & _MACRON) == _MACRON) {
             ucs2String[(*letterLen)++] = combiningAccents[k];
         }
-        else if (combiningAccents[k] == COMBINING_BREVE && (diacritics & _BREVE) == _BREVE)
-        {
+        else if (combiningAccents[k] == COMBINING_BREVE && (diacritics & _BREVE) == _BREVE) {
             ucs2String[(*letterLen)++] = combiningAccents[k];
         }
-        else if (combiningAccents[k] == COMBINING_ROUGH_BREATHING && (diacritics & _ROUGH) == _ROUGH)
-        {
+        else if (combiningAccents[k] == COMBINING_ROUGH_BREATHING && (diacritics & _ROUGH) == _ROUGH) {
             ucs2String[(*letterLen)++] = combiningAccents[k];
         }
-        else if (combiningAccents[k] == COMBINING_SMOOTH_BREATHING && (diacritics & _SMOOTH) == _SMOOTH)
-        {
+        else if (combiningAccents[k] == COMBINING_SMOOTH_BREATHING && (diacritics & _SMOOTH) == _SMOOTH) {
             ucs2String[(*letterLen)++] = combiningAccents[k];
         }
-        else if (combiningAccents[k] == COMBINING_ACUTE && (diacritics & _ACUTE) == _ACUTE)
-        {
+        else if (combiningAccents[k] == COMBINING_ACUTE && (diacritics & _ACUTE) == _ACUTE) {
             ucs2String[(*letterLen)++] = combiningAccents[k];
         }
-        else if (combiningAccents[k] == COMBINING_GRAVE && (diacritics & _GRAVE) == _GRAVE)
-        {
+        else if (combiningAccents[k] == COMBINING_GRAVE && (diacritics & _GRAVE) == _GRAVE) {
             ucs2String[(*letterLen)++] = combiningAccents[k];
         }
-        else if (combiningAccents[k] == COMBINING_CIRCUMFLEX && (diacritics & _CIRCUMFLEX) == _CIRCUMFLEX)
-        {
+        else if (combiningAccents[k] == COMBINING_CIRCUMFLEX && (diacritics & _CIRCUMFLEX) == _CIRCUMFLEX) {
             ucs2String[(*letterLen)++] = combiningAccents[k];
         }
-        else if (combiningAccents[k] == COMBINING_IOTA_SUBSCRIPT && (diacritics & _IOTA_SUB) == _IOTA_SUB)
-        {
+        else if (combiningAccents[k] == COMBINING_IOTA_SUBSCRIPT && (diacritics & _IOTA_SUB) == _IOTA_SUB) {
             ucs2String[(*letterLen)++] = combiningAccents[k];
         }
-        else if (combiningAccents[k] == COMBINING_DIAERESIS && (diacritics & _DIAERESIS) == _DIAERESIS)
-        {
+        else if (combiningAccents[k] == COMBINING_DIAERESIS && (diacritics & _DIAERESIS) == _DIAERESIS) {
             ucs2String[(*letterLen)++] = combiningAccents[k];
         }
-        else if (combiningAccents[k] == COMBINING_UNDERDOT && (diacritics & _UNDERDOT) == _UNDERDOT)
-        {
+        else if (combiningAccents[k] == COMBINING_UNDERDOT && (diacritics & _UNDERDOT) == _UNDERDOT) {
             ucs2String[(*letterLen)++] = combiningAccents[k];
         }
     }
-    return true;
+    /* The loop above results in smaller code in EMPSCRIPTEN???
+    //in order that they should appear
+    if ( (diacritics & _MACRON) == _MACRON ){
+        ucs2String[(*letterLen)++] = COMBINING_MACRON;
+    }
+    if ( (diacritics & _BREVE) == _BREVE ) {
+        ucs2String[(*letterLen)++] = COMBINING_BREVE;
+    }
+    if ( (diacritics & _ROUGH) == _ROUGH ) {
+        ucs2String[(*letterLen)++] = COMBINING_ROUGH_BREATHING;
+    }
+    if ( (diacritics & _SMOOTH) == _SMOOTH ) {
+        ucs2String[(*letterLen)++] = COMBINING_SMOOTH_BREATHING;
+    }
+    if ( (diacritics & _ACUTE) == _ACUTE ) {
+        ucs2String[(*letterLen)++] = COMBINING_ACUTE;
+    }
+    if ( (diacritics & _GRAVE) == _GRAVE ) {
+        ucs2String[(*letterLen)++] = COMBINING_GRAVE;
+    }
+    if ( (diacritics & _CIRCUMFLEX) == _CIRCUMFLEX ) {
+        ucs2String[(*letterLen)++] = COMBINING_CIRCUMFLEX;
+    }
+    if ( (diacritics & _IOTA_SUB) == _IOTA_SUB ) {
+        ucs2String[(*letterLen)++] = COMBINING_IOTA_SUBSCRIPT;
+    }
+    if ( (diacritics & _DIAERESIS) == _DIAERESIS ) {
+        ucs2String[(*letterLen)++] = COMBINING_DIAERESIS;
+    }
+    if ( (diacritics & _UNDERDOT) == _UNDERDOT) {
+        ucs2String[(*letterLen)++] = COMBINING_UNDERDOT;
+    }*/
 }
 
 bool makeLetter(UCS2 *ucs2String, int *newLetterLen, UCS2 letter, unsigned int diacritics, int unicodeMode)
@@ -1495,7 +1536,8 @@ bool makeLetter(UCS2 *ucs2String, int *newLetterLen, UCS2 letter, unsigned int d
     *newLetterLen = 1;
     if (unicode_mode == COMBINING_ONLY_MODE || precomposingFallbackToComposing)
     {
-        return makeLetterCombining(ucs2String, newLetterLen, letter, diacritics, unicodeMode);
+        makeLetterCombining(ucs2String, newLetterLen, letter, diacritics, unicodeMode);
+        return true;
     }
     else
     {

@@ -136,7 +136,7 @@ function accentSyllable(origChars, key) {
         wasmBuffer[i] = origChars.codePointAt(i);
     }
 
-    len = accentSyllableWASM(wasmBuffer.byteOffset, len, key, 1, 2);
+    len = accentSyllableWASM(wasmBuffer.byteOffset, len, key, 1, 0);
 
     //transform the returned code points back to a string
     var newLetter = "";
