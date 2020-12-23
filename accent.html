@@ -15,6 +15,17 @@ crossorigin="anonymous"></script>
 
     // Loads a WebAssembly dynamic library, returns a promise.
     // imports is an optional imports object
+/*
+function fetchAndInstantiate(url, importObject) {
+  return fetch(url).then(response =>
+    response.arrayBuffer()
+  ).then(bytes =>
+    WebAssembly.instantiate(bytes, importObject)
+  ).then(results =>
+    results.instance
+  );
+}
+    */
     function loadWebAssembly(filename, imports) {
       // Fetch the file and compile it
 const importObject = {
@@ -125,7 +136,7 @@ function accentSyllable(origChars, key) {
         wasmBuffer[i] = origChars.codePointAt(i);
     }
 
-    len = accentSyllableWASM(wasmBuffer.byteOffset, len, key, 1, 1);
+    len = accentSyllableWASM(wasmBuffer.byteOffset, len, key, 1, 2);
 
     //transform the returned code points back to a string
     var newLetter = "";
@@ -154,7 +165,7 @@ function handleKey(evt) {
         this.selectionStart = this.selectionEnd = start + 1 - charsToReplace;
         return false;
     }
-    else if (charCode && charCode > /*47 blocking underdot here*/48 && charCode < 58) { //number: 0-9 are 48-57
+    else if (charCode && charCode > /*47 blocking underdot here*/47 && charCode < 58) { //number: 0-9 are 48-57
         var key = String.fromCharCode(charCode);
         var hckey = 0;
         switch( parseInt(key) ) {
