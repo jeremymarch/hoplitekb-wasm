@@ -1661,17 +1661,19 @@ int compare(UCS2 *s1, int len1, UCS2 *s2, int len2, int compareType)
         i1 += analyzeLetter(&s1[i1], len1, &temp1, &diacritics1, &type1);
         i2 += analyzeLetter(&s2[i2], len2, &temp2, &diacritics2, &type2);
         //printf("compareletter: %04X, %04X\n", temp1, temp2);
-        if (temp1 != temp2)
+        if (basicGreekLookUp[temp1 - 0x0370][2] < basicGreekLookUp[temp2 - 0x0370][2])
         {
-            break;
+            return -1;
+        }
+        else if (basicGreekLookUp[temp1 - 0x0370][2] > basicGreekLookUp[temp2 - 0x0370][2])
+        {
+            return 1;
         }
     }
+    
     if (i1 == len1 && i2 == len2) //both at end
     {
-        if (temp1 == temp2) return 0;
-        else if (basicGreekLookUp[temp1 - 0x0370][2] == basicGreekLookUp[temp2 - 0x0370][2]) return 0; //e.g. final sigma == sigma
-        else if (basicGreekLookUp[temp1 - 0x0370][2] < basicGreekLookUp[temp2 - 0x0370][2]) return -1;
-        else return 1;
+        return 0;
     }
     else if (i1 == len1) //1 at end
     {
@@ -1852,20 +1854,7 @@ void accentSyllable(UCS2 *ucs2String, int *len, int accentToAdd, bool toggleOff,
     //5. make room for letter or decrease it if it is shrinking
     ucsplice(ucs2String, len, 1024, 0, letterLen, buffer, newLetterLen);
 }
-/*
-int compare(char *s1, char *s2)
-{
-    UCS2 us1[strlen(s1)*2];
-    UCS2 us2[strlen(s2)*2];
-    int us1len = 0;
-    utf8_to_ucs2_string(s1, us1, &us1len);
-    int us2len = 0;
-    utf8_to_ucs2_string(s2, us2, &us2len);
-    //stripaccent
-    
-    return 0;
-}
-*/
+
 /*
 unsigned long mystrlen(const char * str)
 {

@@ -47,20 +47,34 @@
    	buf[1] = GREEK_SMALL_LETTER_BETA;
    	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 2, HK_CASE_INSENSITIVE) == -1);
 
+   	//αβ > β
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[1] = GREEK_SMALL_LETTER_BETA;
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[1], 1, HK_CASE_INSENSITIVE) == -1);
+
    	//αβ > α
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
    	buf[1] = GREEK_SMALL_LETTER_BETA;
-   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[1], 1, HK_CASE_INSENSITIVE) == 1);
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[0], 1, HK_CASE_INSENSITIVE) == 1);
 
    	//αβ > α
    	buf[0] = GREEK_SMALL_LETTER_SIGMA;
    	buf[1] = GREEK_SMALL_LETTER_FINAL_SIGMA;
    	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, HK_CASE_INSENSITIVE) == 0);
 
+   	//α > α
+   	buf[0] = GREEK_SMALL_LETTER_SIGMA;
+   	buf[1] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[2] = GREEK_SMALL_LETTER_FINAL_SIGMA;
+   	buf[3] = GREEK_SMALL_LETTER_BETA;
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, HK_CASE_INSENSITIVE) == -1);
+
    	//EB09
    	//α > α
    	buf[0] = 0xEB09;
    	buf[1] = GREEK_SMALL_LETTER_ALPHA;
    	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, HK_CASE_INSENSITIVE) == 0);
+
+
  }
  
