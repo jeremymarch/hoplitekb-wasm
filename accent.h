@@ -53,6 +53,13 @@ enum {
     PRECOMPOSED_HC_MODE //this is legacy for the hoplite challenge app which uses combining macron even if no other diacritics
 };
 
+enum {
+    HK_BINARY = 0,
+    HK_CASE_INSENSITIVE,
+    HK_CASE_DIACRITIC_INSENSITIVE,
+    HK_DIACRITIC_INSENSITIVE
+};
+
 void allowSpacingDiacritics(bool val);
 
 void accentSyllable(UCS2 *ucs2String, int *len, int accentToAdd, bool toggleOff, int unicodeMode);
@@ -60,9 +67,10 @@ char *accentSyllableUtf8(char *utf8, int accent);
 int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, int unicodeMode);
 //int accentSyllable3(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, int unicodeMode);
 int stripDiacritics(UCS2 *ucs2String, int len);
+int compare(UCS2 *s1, int len1, UCS2 *s2, int len2, int compareType);
 
 int scanLetter(UCS2 *ucs2String, int i, int len, UCS2 *letterCode, int *accentBitMask);
-int analyzeLetter(UCS2 *ucs2String, int len, UCS2 *letterCode, unsigned int *accentBitMask);
+int analyzeLetter(UCS2 *ucs2String, int len, UCS2 *letter, unsigned int *diacritics, UCS2 *type);
 int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *a);
 
 bool makeLetter(UCS2 *ucs2String, int *newLetterLen, UCS2 letterCode, unsigned int accentBitMask, int unicodeMode);

@@ -15,6 +15,7 @@
 #ifndef __EMSCRIPTEN__
 #include <stdio.h>
 #include <string.h>
+#include <assert.h>
 
 #endif
 
@@ -879,7 +880,7 @@ bool analyzePrecomposedLetterOLD(UCS2 letter, int *l, int *a)
  For ACCENTABLE_CHAR it puts the base vowel in *l and an accentBitMask in *a
  For NOT_ACCENTABLE_CHAR it puts the consonant in *l which will be the same as letterToAnalyze
  */
-int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *a)
+int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *diacritics)
 {
     int offset = 0;
     UCS2 returnChar = 0; //will be NOCHAR, NOT_ACCENTABLE_CHAR, or the base vowel if ACCENTABLE_CHAR
@@ -900,7 +901,7 @@ int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *a)
         else if (returnChar > NOT_ACCENTABLE_CHAR)
         {
             *l = returnChar;
-            *a |= basicGreekLookUp[offset][1];
+            *diacritics |= basicGreekLookUp[offset][1];
             //fprintf(stderr, "basic letter: %d, accent: %d", *l, *a);
             return ACCENTABLE_CHAR;
         }
@@ -921,7 +922,7 @@ int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *a)
         else if (returnChar > NOT_ACCENTABLE_CHAR)
         {
             *l = returnChar;
-            *a |= extendedGreekLookUp[offset][1];
+            *diacritics |= extendedGreekLookUp[offset][1];
             //fprintf(stderr, "extended letter: %d, accent: %d", *l, *a);
             return ACCENTABLE_CHAR;
         }
@@ -942,12 +943,12 @@ int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *a)
         else if (returnChar > NOT_ACCENTABLE_CHAR)
         {
             *l = returnChar;
-            *a |= puaGreekLookUp[offset][1];
+            *diacritics |= puaGreekLookUp[offset][1];
             //fprintf(stderr, "pua letter: %d, accent: %d", *l, *a);
             return ACCENTABLE_CHAR;
         }
     }
-    
+    *l = letterToAnalyze;
     return NOCHAR;
 }
 
@@ -1421,13 +1422,15 @@ int analyzeCombiningChars(UCS2 *cp, int len, unsigned int *diacritics)
 
 //passes back the letterCode and diacriticMask for this letter
 //returns the number of characters or -1, if not valid or unknown
-int analyzeLetter(UCS2 *ucs2String, int len, UCS2 *letter, unsigned int *diacritics)
+int analyzeLetter(UCS2 *ucs2String, int len, UCS2 *letter, unsigned int *diacritics, UCS2 *type)
 {
+    *diacritics = 0; //start at nothing
+    *letter = 0;
+    //always returns at least one for the first char.
+    //these diacritics are then passed into and added to in analyzePrecomposedLetter
     int letterLen = analyzeCombiningChars(ucs2String, len, diacritics);
     
-    if (analyzePrecomposedLetter(*ucs2String, letter, diacritics) != ACCENTABLE_CHAR) {
-        return -1;
-    }
+    *type = analyzePrecomposedLetter(*ucs2String, letter, diacritics);
     
     return letterLen;
 }
@@ -1633,7 +1636,6 @@ UCS2 getSpacingDiacritic(int diacritic)
 }
 
 //wasm / emscripten / webassembly
-//emcc -std=gnu99 -s STANDALONE_WASM -s EXPORTED_FUNCTIONS="['_accentSyllable2']" -Wl,--no-entry "utilities.c" "accent.c" -o "accent.wasm"
 //emcc -std=gnu99 -Oz -s STANDALONE_WASM -s EXPORTED_FUNCTIONS="['_accentSyllable2','_stripDiacritics']" -Wl,--no-entry "utilities.c" "accent.c" -o "hoplitekb.wasm"
 int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, int unicodeMode)
 {
@@ -1641,55 +1643,71 @@ int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, i
     return len;
 }
 
-/*
-int compare(UCS2 *s1, int len1, UCS2 *s2, int len2)
+//binary
+//diacritic sensitve, but accepts composed/decomposed equally
+//accent insensitive, but breathing/iota subscript/macron/breve/diaeresis sensitive
+//diacritic insensitive
+//unknown chars sensitive/insensitive
+int compare(UCS2 *s1, int len1, UCS2 *s2, int len2, int compareType)
 {
-    while(1)
+    UCS2 temp1, temp2;
+    unsigned int diacritics1 = 0;
+    unsigned int diacritics2 = 0;
+    int i1 = 0;
+    int i2 = 0;
+    UCS2 type1, type2;
+    while (i1 < len1 && i2 < len2)
     {
-        int x = analyzeLetter(s1, i, len1, &tempChar, &diacritics);
+        i1 += analyzeLetter(&s1[i1], len1, &temp1, &diacritics1, &type1);
+        i2 += analyzeLetter(&s2[i2], len2, &temp2, &diacritics2, &type2);
+        //printf("compareletter: %04X, %04X\n", temp1, temp2);
+        if (temp1 != temp2)
+        {
+            break;
+        }
     }
-}*/
+    if (i1 == len1 && i2 == len2) //both at end
+    {
+        if (temp1 == temp2) return 0;
+        else if (basicGreekLookUp[temp1 - 0x0370][2] == basicGreekLookUp[temp2 - 0x0370][2]) return 0; //e.g. final sigma == sigma
+        else if (basicGreekLookUp[temp1 - 0x0370][2] < basicGreekLookUp[temp2 - 0x0370][2]) return -1;
+        else return 1;
+    }
+    else if (i1 == len1) //1 at end
+    {
+        return -1;
+    }
+    else //2 at end
+    {
+        return 1;
+    }
+}
+
 /*
 int convert(char *utf8, UCS2 *ucs2String, int len, int unicodemode)
 {
     //convert to ucs2 minding len buffer length
     //then walk the ucs2 string converting it in place
 }
-
-//binary
-//diacritic sensitve, but accepts composed/decomposed equally
-//accent insensitive, but breathing/iota subscript/macron/breve/diaeresis sensitive
-//diacritic insensitive
-int compare (UCS2 *s1, int len1, UCS2 *s2, int len2, int comparisonType)
-{
-
-}
 */
 int stripDiacritics(UCS2 *ucs2String, int len)
 {
-    UCS2 tempChar;
+    UCS2 tempChar, type;
     UCS2 *p = ucs2String;
     unsigned int diacritics;
-    int end = 0;
-    for (int i = 0; i < len; )
+    int strEnd = 0;
+    UCS2 *end = p + len;
+    while ( p < end )//(int i = 0; i < len; )
     {
-        int x = analyzeLetter(p, len, &tempChar, &diacritics);
+        int letterLen = analyzeLetter(p, len, &tempChar, &diacritics, &type);
         #ifndef __EMSCRIPTEN__
-        printf("\ti %d, (%d), len: %d\n", i, len, x);
+        printf("\t(%d), len: %d\n", len, letterLen);
         #endif
-        if (x < 1) {
-            
-            ucs2String[end++] = *p;
-            i++;
-            p++;
-        }
-        else {
-            i += x;
-            p += x;
-            ucs2String[end++] = tempChar;
-        }
+        //i += letterLen;
+        p += letterLen;
+        ucs2String[strEnd++] = tempChar;
     }
-    len = end;
+    len = strEnd;
     return len;
 }
 
@@ -1787,9 +1805,9 @@ void accentSyllable(UCS2 *ucs2String, int *len, int accentToAdd, bool toggleOff,
     unsigned int diacritics = 0;
     
     //this will be -1 on error
-    int letterLen = analyzeLetter(ucs2String, *len, &baseLetter, &diacritics);
-    if (letterLen < 1) {
-
+    UCS2 type;
+    int letterLen = analyzeLetter(ucs2String, *len, &baseLetter, &diacritics, &type);
+    if (type != ACCENTABLE_CHAR) {
 
         if (accentToAdd == UNDERDOT)
         {

@@ -1,5 +1,7 @@
 #include <stdio.h>
+#include <assert.h>
 #include "accent.h"
+#include "GreekUnicode.h"
 
  int main(int v, char **a)
  {
@@ -17,11 +19,48 @@
 
     UCS2 buf[1024];
     int len = 0;
-    bool l = makeLetter(&buf, &len, 0x03B1, _ACUTE, PRECOMPOSED_WITH_PUA_MODE);
-    printf("letter %04x %d\n", buf[0], len);
+    bool l = makeLetter((UCS2*)&buf, &len, 0x03B1, _ACUTE, PRECOMPOSED_WITH_PUA_MODE);
+    printf("letter %04x %d, %d\n", buf[0], len, l);
 
     buf[0] = 0x03B1;
-    int x = accentSyllable2(&buf, 1, ACUTE, true, PRECOMPOSED_WITH_PUA_MODE);
-printf("letter2: %04x %d\n", buf[0], x);
+    int x = accentSyllable2((UCS2*)&buf, 1, ACUTE, true, PRECOMPOSED_WITH_PUA_MODE);
+	printf("letter2: %04x %d\n", buf[0], x);
+
+	//α == α
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[1] = GREEK_SMALL_LETTER_ALPHA;
+   	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, HK_CASE_INSENSITIVE) == 0 );
+
+   	//α == ά
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[1] = GREEK_SMALL_LETTER_ALPHA_WITH_TONOS;
+   	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, HK_CASE_INSENSITIVE) == 0);
+
+   	//α + COMBINING_ACUTE == ά
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[1] = COMBINING_ACUTE;
+   	buf[2] = GREEK_SMALL_LETTER_ALPHA_WITH_TONOS;
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 1, HK_CASE_INSENSITIVE) == 0);
+
+   	//α < αβ
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[1] = GREEK_SMALL_LETTER_BETA;
+   	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 2, HK_CASE_INSENSITIVE) == -1);
+
+   	//αβ > α
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[1] = GREEK_SMALL_LETTER_BETA;
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[1], 1, HK_CASE_INSENSITIVE) == 1);
+
+   	//αβ > α
+   	buf[0] = GREEK_SMALL_LETTER_SIGMA;
+   	buf[1] = GREEK_SMALL_LETTER_FINAL_SIGMA;
+   	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, HK_CASE_INSENSITIVE) == 0);
+
+   	//EB09
+   	//α > α
+   	buf[0] = 0xEB09;
+   	buf[1] = GREEK_SMALL_LETTER_ALPHA;
+   	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, HK_CASE_INSENSITIVE) == 0);
  }
  
