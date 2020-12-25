@@ -16,6 +16,7 @@
 #endif
 
 typedef unsigned short UCS2;
+//typedef uint16_t UCS2;
 
 bool ucsplice(UCS2 *string, int *len, int bufferCapacity, int offset, int replacing, UCS2 *insert, int insert_len);
 

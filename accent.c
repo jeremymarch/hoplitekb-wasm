@@ -292,7 +292,7 @@ UCS2 letters[NUM_VOWEL_CODES][NUM_ACCENT_CODES] = {
 
 //first col will be the actual codepoint for an accenting character
 //or NOT_ACCENTABLE_CHAR or NOCHAR
-UCS2 basicGreekLookUp[][3] = {
+const UCS2 basicGreekLookUp[][3] = {
     /* 0370 */ { NOCHAR, NOCHAR, NOSORT },
     /* 0371 */ { NOCHAR, NOCHAR, NOSORT },
     /* 0372 */ { NOCHAR, NOCHAR, NOSORT },
@@ -439,7 +439,7 @@ UCS2 basicGreekLookUp[][3] = {
     /* 03FF */ { NOCHAR, NOCHAR, NOSORT }
 };
 
-UCS2 extendedGreekLookUp[][2] = {
+const UCS2 extendedGreekLookUp[][2] = {
     /* 1F00 */ { GREEK_SMALL_LETTER_ALPHA, _SMOOTH },
     /* 1F01 */ { GREEK_SMALL_LETTER_ALPHA, _ROUGH },
     /* 1F02 */ { GREEK_SMALL_LETTER_ALPHA, _SMOOTH | _GRAVE },
@@ -698,7 +698,7 @@ UCS2 extendedGreekLookUp[][2] = {
     /* 1FFF */ { NOCHAR, NOCHAR }
 };
 
-UCS2 puaGreekLookUp[][2] = {
+const UCS2 puaGreekLookUp[][2] = {
     /* EAF0 */ { GREEK_SMALL_LETTER_ALPHA, _MACRON | _GRAVE },
     /* EAF1 */ { NOCHAR, NOCHAR },
     /* EAF2 */ { NOCHAR, NOCHAR },
@@ -1661,6 +1661,7 @@ int compare(UCS2 *s1, int len1, UCS2 *s2, int len2, int compareType)
         i1 += analyzeLetter(&s1[i1], len1, &temp1, &diacritics1, &type1);
         i2 += analyzeLetter(&s2[i2], len2, &temp2, &diacritics2, &type2);
         //printf("compareletter: %04X, %04X\n", temp1, temp2);
+
         if (basicGreekLookUp[temp1 - 0x0370][2] < basicGreekLookUp[temp2 - 0x0370][2])
         {
             return -1;
@@ -1669,8 +1670,13 @@ int compare(UCS2 *s1, int len1, UCS2 *s2, int len2, int compareType)
         {
             return 1;
         }
+
+        if ((compareType & _HK_COMP_DIA_SENSITIVE) == _HK_COMP_DIA_SENSITIVE && diacritics1 != diacritics2)
+        {
+            return 1; //we do not care about sort order for this, for now
+        }
     }
-    
+
     if (i1 == len1 && i2 == len2) //both at end
     {
         return 0;

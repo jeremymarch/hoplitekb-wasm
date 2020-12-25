@@ -53,11 +53,11 @@ enum {
     PRECOMPOSED_HC_MODE //this is legacy for the hoplite challenge app which uses combining macron even if no other diacritics
 };
 
+#define _HK_COMP_INSENSITIVE 0
 enum {
-    HK_BINARY = 0,
-    HK_CASE_INSENSITIVE,
-    HK_CASE_DIACRITIC_INSENSITIVE,
-    HK_DIACRITIC_INSENSITIVE
+    _HK_COMP_DIA_SENSITIVE    = 1 << 0,
+    _HK_COMP_CASE_SENSITIVE   = 1 << 1,
+//    _HK_IGNORE_UNKNOWN_CHARS  = 1 << 2
 };
 
 void allowSpacingDiacritics(bool val);

@@ -15,7 +15,7 @@
 
 #define DEBUG_SPLICE(X) debug_msg(X)
 
-void debug_msg(char *x)
+void debug_msg(const char *x)
 {
     #ifndef __EMSCRIPTEN__
     fprintf(stderr, "%s\n", x);
