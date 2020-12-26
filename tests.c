@@ -89,6 +89,20 @@ int main(int argc, char **argv)
    	buf[2] = GREEK_SMALL_LETTER_ALPHA_WITH_TONOS;
    	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 1, _HK_COMP_DIA_SENSITIVE) == 0);
 
+   	//α + COMBINING_ACUTE == ά
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[1] = COMBINING_ACUTE;
+   	buf[2] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[3] = COMBINING_GRAVE;
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_DIA_SENSITIVE) == 1);
+
+   	//α + COMBINING_ACUTE == ά
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[1] = COMBINING_ACUTE;
+   	buf[2] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[3] = COMBINING_GRAVE;
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_INSENSITIVE) == 0);
+
    	   	//α + COMBINING_ACUTE == ά
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
    	buf[1] = COMBINING_GRAVE;
@@ -128,7 +142,7 @@ int main(int argc, char **argv)
    	buf[6] = COMBINING_IOTA_SUBSCRIPT;
    	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 5, _HK_COMP_INSENSITIVE) == 0);   	
 
-   	   	//α + COMBINING_ACUTE == ά
+   	//non-greek char with ignore unknown chars
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
    	buf[1] = 0x0030;
    	buf[2] = GREEK_SMALL_LETTER_BETA;
@@ -137,7 +151,7 @@ int main(int argc, char **argv)
    	buf[4] = GREEK_SMALL_LETTER_BETA;
    	assert( compare((UCS2*)&buf[0], 3, (UCS2*)&buf[3], 2, _HK_COMP_DIA_SENSITIVE | _HK_IGNORE_UNKNOWN_CHARS) == 0);
 
-   	   	//α + COMBINING_ACUTE == ά
+   	//non-greek char withOUT ignore unknown chars
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
    	buf[1] = 0x0030;
    	buf[2] = GREEK_SMALL_LETTER_BETA;
@@ -146,6 +160,12 @@ int main(int argc, char **argv)
    	buf[4] = GREEK_SMALL_LETTER_BETA;
    	assert( compare((UCS2*)&buf[0], 3, (UCS2*)&buf[3], 2, _HK_COMP_DIA_SENSITIVE) == 1);
 
+   	//non-greek greater than basic greek range.
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[1] = 0x0400;
 
+   	buf[2] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[3] = 0x0400;
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_DIA_SENSITIVE) == 1);
    	printf("All tests passed\n");
 }

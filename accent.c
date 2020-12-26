@@ -1648,6 +1648,11 @@ int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, i
 //accent insensitive, but breathing/iota subscript/macron/breve/diaeresis sensitive
 //diacritic insensitive
 //unknown chars sensitive/insensitive
+
+//ignore unknown
+//unknown always sort above/below known
+//consider unknown the end of word
+
 int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
 {
     size_t i1 = 0;
@@ -1684,6 +1689,7 @@ int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
         {
             return 1; //we do not care about sort order for this, for now
         }
+
         if (basicGreekLookUp[temp1 - 0x0370][2] < basicGreekLookUp[temp2 - 0x0370][2])
         {
             return -1;
