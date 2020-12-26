@@ -137,5 +137,15 @@ int main(int argc, char **argv)
    	buf[4] = GREEK_SMALL_LETTER_BETA;
    	assert( compare((UCS2*)&buf[0], 3, (UCS2*)&buf[3], 2, _HK_COMP_DIA_SENSITIVE | _HK_IGNORE_UNKNOWN_CHARS) == 0);
 
+   	   	//α + COMBINING_ACUTE == ά
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[1] = 0x0030;
+   	buf[2] = GREEK_SMALL_LETTER_BETA;
+
+   	buf[3] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[4] = GREEK_SMALL_LETTER_BETA;
+   	assert( compare((UCS2*)&buf[0], 3, (UCS2*)&buf[3], 2, _HK_COMP_DIA_SENSITIVE) == 1);
+
+
    	printf("All tests passed\n");
 }
