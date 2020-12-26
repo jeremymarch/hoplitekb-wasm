@@ -23,7 +23,7 @@ bool ucsplice(UCS2 *string, int *len, int bufferCapacity, int offset, int replac
 int ucs2_to_utf8 (UCS2 ucs2, unsigned char * utf8);
 UCS2 utf8_to_ucs2 (const unsigned char * input, const unsigned char ** end_ptr);
 
-void utf8_to_ucs2_string(const unsigned char *utf8, UCS2 *ucs2, int *len);
-int ucs2_to_utf8_string(UCS2 *ucs2, int len, unsigned char *utf8);
+void utf8_to_ucs2_string(const unsigned char *utf8, UCS2 *ucs2, size_t *len);
+int ucs2_to_utf8_string(UCS2 *ucs2, size_t len, unsigned char *utf8);
 
 #endif /* utilities_h */

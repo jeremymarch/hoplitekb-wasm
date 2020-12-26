@@ -35,6 +35,15 @@
 #define ALLOW_RHO_WITH_PSILI 0
 #define MAX_COMBINING 6 //macron, breathing, accent, iota subscript || diaeresis, macron, accent, underdot
 
+#ifdef __EMSCRIPTEN__
+size_t strlen(const char *str)
+{
+    const char *s;
+    for (s = str; *s; ++s) {}
+    return(s - str);
+}
+#endif
+
 char unicode_mode = PRECOMPOSED_MODE; //set default
 bool addSpacingDiacriticIfNotLegal = false;
 
@@ -1643,6 +1652,17 @@ int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, i
     return len;
 }
 
+int compareUTF8(char *s1, char *s2, int compareType)
+{
+    UCS2 a1[strlen(s1)*2];
+    UCS2 a2[strlen(s2)*2];
+    size_t len1, len2;
+
+    utf8_to_ucs2_string((unsigned char*)s1, a1, &len1);
+    utf8_to_ucs2_string((unsigned char*)s2, a2, &len2);
+
+    return compare(a1, len1, a2, len2, compareType);
+}
 //binary
 //diacritic sensitve, but accepts composed/decomposed equally
 //accent insensitive, but breathing/iota subscript/macron/breve/diaeresis sensitive
@@ -1890,13 +1910,6 @@ void accentSyllable(UCS2 *ucs2String, int *len, int accentToAdd, bool toggleOff,
 }
 
 /*
-unsigned long mystrlen(const char * str)
-{
-    const char *s;
-    for (s = str; *s; ++s) {}
-    return(s - str);
-}
-
 #include <stdlib.h>
 char buf[1024];
 char *accentSyllableUtf8(char *utf8, int accent)

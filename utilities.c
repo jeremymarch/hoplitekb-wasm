@@ -223,7 +223,7 @@ UCS2 utf8_to_ucs2 (const unsigned char * input, const unsigned char ** end_ptr)
 
 //FIX ME, this could probably be written more efficiently.
 //only null terminate at the end and verify that it is null terminated properly
-int ucs2_to_utf8_string(UCS2 *ucs2, int len, unsigned char *utf8)
+int ucs2_to_utf8_string(UCS2 *ucs2, size_t len, unsigned char *utf8)
 {
     unsigned char *utf8Temp = utf8;
     if (len < 1)
@@ -246,7 +246,7 @@ int ucs2_to_utf8_string(UCS2 *ucs2, int len, unsigned char *utf8)
     return 1;
 }
 
-void utf8_to_ucs2_string(const unsigned char *utf8, UCS2 *ucs2, int *len)
+void utf8_to_ucs2_string(const unsigned char *utf8, UCS2 *ucs2, size_t *len)
 {
     int temp; //because UCS2 is unsigned.
     *len = 0;

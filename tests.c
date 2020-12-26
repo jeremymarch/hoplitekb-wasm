@@ -5,7 +5,7 @@
 
 int main(int argc, char **argv)
 {
-	    UCS2 buf[1024];
+	UCS2 buf[1024];
 /*
  	UCS2 s[] = {0x03B1, 0x03B1, 0x0345};
  	int len1 = stripDiacritics(s, 3);
@@ -89,27 +89,27 @@ int main(int argc, char **argv)
    	buf[2] = GREEK_SMALL_LETTER_ALPHA_WITH_TONOS;
    	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 1, _HK_COMP_DIA_SENSITIVE) == 0);
 
-   	//α + COMBINING_ACUTE == ά
+   	//α + COMBINING_ACUTE != combining_grave not match
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
    	buf[1] = COMBINING_ACUTE;
    	buf[2] = GREEK_SMALL_LETTER_ALPHA;
    	buf[3] = COMBINING_GRAVE;
    	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_DIA_SENSITIVE) == 1);
 
-   	//α + COMBINING_ACUTE == ά
+   	//α + COMBINING_ACUTE == combining grave insensitive
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
    	buf[1] = COMBINING_ACUTE;
    	buf[2] = GREEK_SMALL_LETTER_ALPHA;
    	buf[3] = COMBINING_GRAVE;
    	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_INSENSITIVE) == 0);
 
-   	   	//α + COMBINING_ACUTE == ά
+   	//α + COMBINING_Grave != precomposed tonos
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
    	buf[1] = COMBINING_GRAVE;
    	buf[2] = GREEK_SMALL_LETTER_ALPHA_WITH_TONOS;
    	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 1, _HK_COMP_DIA_SENSITIVE) == 1);
 
-   	   	   	//α + COMBINING_ACUTE == ά
+   	//PUA and combining sensitive match
    	buf[0] = 0xEB09;
    	buf[1] = COMBINING_IOTA_SUBSCRIPT;
 
@@ -120,7 +120,7 @@ int main(int argc, char **argv)
    	buf[6] = COMBINING_IOTA_SUBSCRIPT;
    	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 5, _HK_COMP_DIA_SENSITIVE) == 0);
 
-   	   	   	//α + COMBINING_ACUTE == ά
+   	//PUA and combining sensitive not match
    	buf[0] = 0xEB09;
    	buf[1] = COMBINING_IOTA_SUBSCRIPT;
    	
@@ -131,7 +131,7 @@ int main(int argc, char **argv)
    	buf[6] = COMBINING_IOTA_SUBSCRIPT;
    	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 5, _HK_COMP_DIA_SENSITIVE) == 1);
 
-   	   	   	//α + COMBINING_ACUTE == ά
+   	//PUA and combining insensitive
    	buf[0] = 0xEB09;
    	buf[1] = COMBINING_IOTA_SUBSCRIPT;
    	
@@ -167,5 +167,21 @@ int main(int argc, char **argv)
    	buf[2] = GREEK_SMALL_LETTER_ALPHA;
    	buf[3] = 0x0400;
    	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_DIA_SENSITIVE) == 1);
+
+   	//non-greek greater than basic greek range.
+   	buf[0] = GREEK_SMALL_LETTER_OMEGA;
+   	buf[1] = GREEK_SMALL_LETTER_OMEGA_WITH_PSILI_AND_OXIA;
+   	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, _HK_COMP_INSENSITIVE) == 0);
+
+   	assert( compareUTF8("α", "αβ", _HK_COMP_DIA_SENSITIVE) == -1);
+   	assert( compareUTF8("β", "α", _HK_COMP_DIA_SENSITIVE) == 1);
+   	assert( compareUTF8("αβ", "α", _HK_COMP_DIA_SENSITIVE) == 1);
+   	assert( compareUTF8("α", "αβ", _HK_COMP_DIA_SENSITIVE) == -1);
+   	assert( compareUTF8("ω", "ὤ", _HK_COMP_DIA_SENSITIVE) == 1);
+   	assert( compareUTF8("ω", "ὤ", _HK_COMP_INSENSITIVE) == 0);
+
+
+
+
    	printf("All tests passed\n");
 }
