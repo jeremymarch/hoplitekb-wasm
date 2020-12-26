@@ -57,7 +57,7 @@ enum {
 enum {
     _HK_COMP_DIA_SENSITIVE    = 1 << 0,
     _HK_COMP_CASE_SENSITIVE   = 1 << 1,
-//    _HK_IGNORE_UNKNOWN_CHARS  = 1 << 2
+    _HK_IGNORE_UNKNOWN_CHARS  = 1 << 2
 };
 
 void allowSpacingDiacritics(bool val);
@@ -67,7 +67,7 @@ char *accentSyllableUtf8(char *utf8, int accent);
 int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, int unicodeMode);
 //int accentSyllable3(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, int unicodeMode);
 int stripDiacritics(UCS2 *ucs2String, int len);
-int compare(UCS2 *s1, int len1, UCS2 *s2, int len2, int compareType);
+int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType);
 
 int scanLetter(UCS2 *ucs2String, int i, int len, UCS2 *letterCode, int *accentBitMask);
 int analyzeLetter(UCS2 *ucs2String, int len, UCS2 *letter, unsigned int *diacritics, UCS2 *type);

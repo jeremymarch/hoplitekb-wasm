@@ -27,6 +27,7 @@ int main(int argc, char **argv)
     int x = accentSyllable2((UCS2*)&buf, 1, ACUTE, true, PRECOMPOSED_WITH_PUA_MODE);
 	printf("letter2: %04x %d\n", buf[0], x);
 */
+	    
 	//α == α
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
    	buf[1] = GREEK_SMALL_LETTER_ALPHA;
@@ -126,6 +127,15 @@ int main(int argc, char **argv)
    	buf[5] = COMBINING_GRAVE;
    	buf[6] = COMBINING_IOTA_SUBSCRIPT;
    	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 5, _HK_COMP_INSENSITIVE) == 0);   	
-   	
+
+   	   	//α + COMBINING_ACUTE == ά
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[1] = 0x0030;
+   	buf[2] = GREEK_SMALL_LETTER_BETA;
+
+   	buf[3] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[4] = GREEK_SMALL_LETTER_BETA;
+   	assert( compare((UCS2*)&buf[0], 3, (UCS2*)&buf[3], 2, _HK_COMP_DIA_SENSITIVE | _HK_IGNORE_UNKNOWN_CHARS) == 0);
+
    	printf("All tests passed\n");
 }

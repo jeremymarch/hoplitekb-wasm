@@ -1648,19 +1648,38 @@ int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, i
 //accent insensitive, but breathing/iota subscript/macron/breve/diaeresis sensitive
 //diacritic insensitive
 //unknown chars sensitive/insensitive
-int compare(UCS2 *s1, int len1, UCS2 *s2, int len2, int compareType)
+int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
 {
-    UCS2 temp1, temp2;
-    unsigned int diacritics1 = 0;
-    unsigned int diacritics2 = 0;
     int i1 = 0;
     int i2 = 0;
-    UCS2 type1, type2;
+
     while (i1 < len1 && i2 < len2)
     {
-        i1 += analyzeLetter(&s1[i1], len1, &temp1, &diacritics1, &type1);
-        i2 += analyzeLetter(&s2[i2], len2, &temp2, &diacritics2, &type2);
-        //printf("compareletter: %04X, %04X\n", temp1, temp2);
+        UCS2 temp1 = 0;
+        UCS2 temp2 = 0;
+        unsigned int diacritics1 = 0;
+        unsigned int diacritics2 = 0;
+        UCS2 type1 = 0;
+        UCS2 type2 = 0;
+        //printf("diacritics %d, %d\n", diacritics1, diacritics2);
+        size_t l1 = analyzeLetter(&s1[i1], len1 - i1, &temp1, &diacritics1, &type1);
+        size_t l2 = analyzeLetter(&s2[i2], len2 - i2, &temp2, &diacritics2, &type2);
+
+        if ((compareType & _HK_IGNORE_UNKNOWN_CHARS) == _HK_IGNORE_UNKNOWN_CHARS && type1 == NOCHAR)
+        {
+            i1 += l1;
+            continue;
+        }
+        else if ((compareType & _HK_IGNORE_UNKNOWN_CHARS) == _HK_IGNORE_UNKNOWN_CHARS && type2 == NOCHAR)
+        {
+            i2 += l2;
+            continue;
+        }
+        else
+        {
+            i1 += l1;
+            i2 += l2;
+        }
 
         if (basicGreekLookUp[temp1 - 0x0370][2] < basicGreekLookUp[temp2 - 0x0370][2])
         {
