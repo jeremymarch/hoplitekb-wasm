@@ -10,7 +10,6 @@
 // file, You can obtain one at http://mozilla.org/MPL/2.0/.
 //
 
-
 #ifndef accent_h
 #define accent_h
 
@@ -70,7 +69,7 @@ int stripDiacritics(UCS2 *ucs2String, int len);
 int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType);
 
 int scanLetter(UCS2 *ucs2String, int i, int len, UCS2 *letterCode, int *accentBitMask);
-int analyzeLetter(UCS2 *ucs2String, int len, UCS2 *letter, unsigned int *diacritics, UCS2 *type);
+size_t analyzeLetter(UCS2 *ucs2String, int len, UCS2 *letter, unsigned int *diacritics, UCS2 *type);
 int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *a);
 
 bool makeLetter(UCS2 *ucs2String, int *newLetterLen, UCS2 letterCode, unsigned int accentBitMask, int unicodeMode);

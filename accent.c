@@ -1422,7 +1422,7 @@ int analyzeCombiningChars(UCS2 *cp, int len, unsigned int *diacritics)
 
 //passes back the letterCode and diacriticMask for this letter
 //returns the number of characters or -1, if not valid or unknown
-int analyzeLetter(UCS2 *ucs2String, int len, UCS2 *letter, unsigned int *diacritics, UCS2 *type)
+size_t analyzeLetter(UCS2 *ucs2String, int len, UCS2 *letter, unsigned int *diacritics, UCS2 *type)
 {
     *diacritics = 0; //start at nothing
     *letter = 0;
@@ -1650,8 +1650,8 @@ int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, i
 //unknown chars sensitive/insensitive
 int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
 {
-    int i1 = 0;
-    int i2 = 0;
+    size_t i1 = 0;
+    size_t i2 = 0;
 
     while (i1 < len1 && i2 < len2)
     {
@@ -1661,7 +1661,7 @@ int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
         unsigned int diacritics2 = 0;
         UCS2 type1 = 0;
         UCS2 type2 = 0;
-        //printf("diacritics %d, %d\n", diacritics1, diacritics2);
+
         size_t l1 = analyzeLetter(&s1[i1], len1 - i1, &temp1, &diacritics1, &type1);
         size_t l2 = analyzeLetter(&s2[i2], len2 - i2, &temp2, &diacritics2, &type2);
 
@@ -1726,9 +1726,9 @@ int stripDiacritics(UCS2 *ucs2String, int len)
     UCS2 *end = p + len;
     while ( p < end )//(int i = 0; i < len; )
     {
-        int letterLen = analyzeLetter(p, len, &tempChar, &diacritics, &type);
+        size_t letterLen = analyzeLetter(p, len, &tempChar, &diacritics, &type);
         #ifndef __EMSCRIPTEN__
-        printf("\t(%d), len: %d\n", len, letterLen);
+        printf("\t(%d), len: %zu\n", len, letterLen);
         #endif
         //i += letterLen;
         p += letterLen;
@@ -1833,7 +1833,7 @@ void accentSyllable(UCS2 *ucs2String, int *len, int accentToAdd, bool toggleOff,
     
     //this will be -1 on error
     UCS2 type;
-    int letterLen = analyzeLetter(ucs2String, *len, &baseLetter, &diacritics, &type);
+    size_t letterLen = analyzeLetter(ucs2String, *len, &baseLetter, &diacritics, &type);
     if (type != ACCENTABLE_CHAR) {
 
         if (accentToAdd == UNDERDOT)

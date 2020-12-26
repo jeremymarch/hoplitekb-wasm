@@ -8,7 +8,7 @@
 
 #ifndef utilities_h
 #define utilities_h
-
+#include <stddef.h> //for size_t
 #include <stdbool.h>
 
 #ifndef __EMSCRIPTEN__

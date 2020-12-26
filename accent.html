@@ -76,11 +76,12 @@ var stripDiacritics2;
         var memory = exports.memory;
 
         wasmBuffer = new Uint16Array(memory.buffer, 0, 1024);
-
+        /*
         // now we are ready, set up the button so the user can run the code
         var button = document.getElementById('b');
         button.value = 'Call a method in the WebAssembly module';
         button.addEventListener('click', test);
+        */
       }
     );
 
@@ -136,7 +137,7 @@ function accentSyllable(origChars, key) {
         wasmBuffer[i] = origChars.codePointAt(i);
     }
 
-    len = accentSyllableWASM(wasmBuffer.byteOffset, len, key, 1, 1);
+    len = accentSyllableWASM(wasmBuffer.byteOffset, len, key, 1, parseInt(unicodeMode) );
 
     //transform the returned code points back to a string
     var newLetter = "";
@@ -147,7 +148,7 @@ function accentSyllable(origChars, key) {
     //let win1251decoder = new TextDecoder('utf-16le');
     return [len, newLetter];
 }
-
+var unicodeMode = 0;
 function handleKey(evt) {
     var val = this.value;
     evt = evt || window.event;
@@ -219,6 +220,9 @@ function handleKey(evt) {
                     break;
                 }
             }
+
+            unicodeMode = $("input:radio[name='unicodeMode']:checked").val();
+
             var ret = accentSyllable(val.slice(start - off, start), hckey.toString());
             var newLetter = ret[1];
             var charsToReplace = start - (start - off);
@@ -266,10 +270,10 @@ function handleKey(evt) {
 	</style>
 </head>
 <body onload="start()">
-	<div id="start">ω</div>
-	<div id="label"></div>
-	<div id="data"></div>
-	<button id="b">test</button>
+	<input type="radio" name="unicodeMode" value="0">Precomposed
+    <input type="radio" name="unicodeMode" value="1">Precomposed with PUA
+    <input type="radio" name="unicodeMode" value="2">Combining-only
+
 	<input class="gkinput" type="text" id="inp"/>
     <input class="gkinputcodes" type="text" id="codes"/>
     <input class="gkinputcodes" type="text" id="codes2"/>
