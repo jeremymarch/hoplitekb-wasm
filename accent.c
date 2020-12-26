@@ -1658,8 +1658,8 @@ int compareUTF8(char *s1, char *s2, int compareType)
     UCS2 a2[strlen(s2)*2];
     size_t len1, len2;
 
-    utf8_to_ucs2_string((unsigned char*)s1, a1, &len1);
-    utf8_to_ucs2_string((unsigned char*)s2, a2, &len2);
+    utf8_to_ucs2_string(s1, a1, &len1);
+    utf8_to_ucs2_string(s2, a2, &len2);
 
     return compare(a1, len1, a2, len2, compareType);
 }

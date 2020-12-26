@@ -246,14 +246,14 @@ int ucs2_to_utf8_string(UCS2 *ucs2, size_t len, unsigned char *utf8)
     return 1;
 }
 
-void utf8_to_ucs2_string(const unsigned char *utf8, UCS2 *ucs2, size_t *len)
+void utf8_to_ucs2_string(const char *utf8, UCS2 *ucs2, size_t *len)
 {
     int temp; //because UCS2 is unsigned.
     *len = 0;
     
     for( int i = 0; *utf8 ; i++)
     {
-        temp = utf8_to_ucs2 (utf8, &utf8);
+        temp = utf8_to_ucs2 ((const unsigned char *)utf8, (const unsigned char **)&utf8);
         if (temp == -1)
         {
             break;
