@@ -65,25 +65,58 @@ function stripDiacriticsLocal(origChars) {
 }
 
 var wasmBuffer;
+var wasmBuffer1;
+var wasmBuffer2;
 var accentSyllableWASM;
 var stripDiacritics2;
-    // Main part of this example, loads the module and uses it.
-    loadWebAssembly('hoplitekb.wasm')
-      .then(instance => {
-        var exports = instance.exports; // the exports of that instance
-        accentSyllableWASM = exports.accentSyllable2; // the "doubler" function (note "_" prefix)
-        stripDiacritics2 = exports.stripDiacritics;
-        var memory = exports.memory;
+var compareWASM;
 
-        wasmBuffer = new Uint16Array(memory.buffer, 0, 1024);
-        /*
-        // now we are ready, set up the button so the user can run the code
-        var button = document.getElementById('b');
-        button.value = 'Call a method in the WebAssembly module';
-        button.addEventListener('click', test);
-        */
-      }
-    );
+loadWebAssembly('hoplitekb.wasm')
+  .then(instance => {
+    var exports = instance.exports;
+    accentSyllableWASM = exports.accentSyllable2;
+    stripDiacritics2 = exports.stripDiacritics;
+    compareWASM = exports.compare;
+    var memory = exports.memory;
+
+    wasmBuffer = new Uint16Array(memory.buffer, 0, 1024);
+    wasmBuffer1 = new Uint16Array(memory.buffer, 1024, 1024);
+    wasmBuffer2 = new Uint16Array(memory.buffer, 2048, 1024);
+    
+    // now we are ready, set up the button so the user can run the code
+    var button = document.getElementById('b');
+    button.value = 'Call a method in the WebAssembly module';
+    button.addEventListener('click', compareLocal);
+    
+  }
+);
+
+function compareLocal()
+{
+    var a = $("#comp1").val();
+    var b = $("#comp2").val();
+    /*
+    var encoder = new TextEncoder("utf-16");
+    var aE = encoder.encode(a);
+    var bE = encoder.encode(b);
+    wasmBuffer1.set(aE);
+    wasmBuffer2.set(bE);
+    */
+    for (var i = 0; i < a.length; i++) {
+        wasmBuffer1[i] = a.codePointAt(i);
+    }
+    for (var i = 0; i < b.length; i++) {
+        wasmBuffer2[i] = b.codePointAt(i);
+    }
+    var x = compareWASM(wasmBuffer1.byteOffset, a.length, wasmBuffer2.byteOffset, b.length, 0);
+    /*
+    var decoder = new TextDecoder("utf-16");
+    var a2 = decoder.decode(wasmBuffer1.slice(aE.length));
+    var b2 = decoder.decode(wasmBuffer2.slice(bE.length));
+    */
+    console.log("compare: " + a + ", " + b + ": " + x);
+    $("#res").html(x);
+}
 
 function test()
 {
@@ -278,5 +311,10 @@ function handleKey(evt) {
     <input class="gkinputcodes" type="text" id="codes"/>
     <input class="gkinputcodes" type="text" id="codes2"/>
     <input class="gkinputcodes" type="text" id="codes3"/>
+    <br><br>
+    <button id="b">compare</button>
+    <input class="gkinput" type="text" id="comp1"/><br>
+    <input class="gkinput" type="text" id="comp2"/><br>
+    <div id="res"></div>
 </body>
 </html>
