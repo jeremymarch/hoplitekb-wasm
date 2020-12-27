@@ -1670,6 +1670,7 @@ int compareUTF8(char *s1, char *s2, int compareType)
 //unknown chars sensitive/insensitive
 
 //ignore unknown
+//compare unknown chars as binary: useful for spaces, punc, etc.
 //unknown always sort above/below known
 //consider unknown the end of word
 
@@ -1746,7 +1747,7 @@ int convert(char *utf8, UCS2 *ucs2String, int len, int unicodemode)
     //then walk the ucs2 string converting it in place
 }
 */
-int stripDiacritics(UCS2 *ucs2String, int len)
+int stripDiacritics(UCS2 *ucs2String, int len, int removeNonGreek)
 {
     UCS2 tempChar, type;
     UCS2 *p = ucs2String;
@@ -1761,7 +1762,10 @@ int stripDiacritics(UCS2 *ucs2String, int len)
         #endif
         //i += letterLen;
         p += letterLen;
-        ucs2String[strEnd++] = tempChar;
+        if (type != NOCHAR || !removeNonGreek)
+        {
+            ucs2String[strEnd++] = tempChar;
+        }
     }
     len = strEnd;
     return len;

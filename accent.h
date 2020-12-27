@@ -65,7 +65,7 @@ void accentSyllable(UCS2 *ucs2String, int *len, int accentToAdd, bool toggleOff,
 char *accentSyllableUtf8(char *utf8, int accent);
 int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, int unicodeMode);
 //int accentSyllable3(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, int unicodeMode);
-int stripDiacritics(UCS2 *ucs2String, int len);
+int stripDiacritics(UCS2 *ucs2String, int len, int removeNonGreek);
 int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType);
 int compareUTF8(char *s1, char *s2, int compareType);
 

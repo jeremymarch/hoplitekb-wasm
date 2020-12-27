@@ -173,6 +173,34 @@ int main(int argc, char **argv)
    	buf[1] = GREEK_SMALL_LETTER_OMEGA_WITH_PSILI_AND_OXIA;
    	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, _HK_COMP_INSENSITIVE) == 0);
 
+   	//space α == space α _HK_IGNORE_UNKNOWN_CHARS
+   	buf[0] = 0x0030;
+   	buf[1] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[2] = 0x0030;
+   	buf[3] = GREEK_SMALL_LETTER_ALPHA;
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_INSENSITIVE | _HK_IGNORE_UNKNOWN_CHARS) == 0 );
+
+   	//space α < space β _HK_IGNORE_UNKNOWN_CHARS
+   	buf[0] = 0x0030;
+   	buf[1] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[2] = 0x0030;
+   	buf[3] = GREEK_SMALL_LETTER_BETA;
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_INSENSITIVE | _HK_IGNORE_UNKNOWN_CHARS) == -1 );
+
+   	//space β > space α _HK_IGNORE_UNKNOWN_CHARS
+   	buf[0] = 0x0030;
+   	buf[1] = GREEK_SMALL_LETTER_BETA;
+   	buf[2] = 0x0030;
+   	buf[3] = GREEK_SMALL_LETTER_ALPHA;
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_INSENSITIVE | _HK_IGNORE_UNKNOWN_CHARS) == 1 );
+
+   	//space β != space α without _HK_IGNORE_UNKNOWN_CHARS
+   	buf[0] = 0x0030;
+   	buf[1] = GREEK_SMALL_LETTER_BETA;
+   	buf[2] = 0x0030;
+   	buf[3] = GREEK_SMALL_LETTER_ALPHA;
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_INSENSITIVE) == 1 );
+
    	assert( compareUTF8("α", "αβ", _HK_COMP_DIA_SENSITIVE) == -1);
    	assert( compareUTF8("β", "α", _HK_COMP_DIA_SENSITIVE) == 1);
    	assert( compareUTF8("αβ", "α", _HK_COMP_DIA_SENSITIVE) == 1);

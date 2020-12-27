@@ -53,7 +53,7 @@ function stripDiacriticsLocal(origChars) {
         wasmBuffer[i] = origChars.codePointAt(i);
     }
 
-    len = stripDiacritics2(wasmBuffer.byteOffset, len);
+    len = stripDiacritics2(wasmBuffer.byteOffset, len, 1);
     console.log("bbb: " + len);
     //transform the returned code points back to a string
     var newLetter = "";

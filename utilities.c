@@ -246,6 +246,27 @@ int ucs2_to_utf8_string(UCS2 *ucs2, size_t len, unsigned char *utf8)
     return 1;
 }
 
+//same as below but with utf8Len for sqlite sort
+void utf8_to_ucs2_string2(const char *utf8, size_t utf8Len, UCS2 *ucs2, size_t *len)
+{
+    int temp; //because UCS2 is unsigned.
+    *len = 0;
+    
+    for( int i = 0; i < utf8Len ; i++)
+    {
+        temp = utf8_to_ucs2 ((const unsigned char *)utf8, (const unsigned char **)&utf8);
+        if (temp == -1)
+        {
+            break;
+        }
+        else
+        {
+            ucs2[i] = temp;
+        }
+        (*len)++;
+    }
+}
+
 void utf8_to_ucs2_string(const char *utf8, UCS2 *ucs2, size_t *len)
 {
     int temp; //because UCS2 is unsigned.
