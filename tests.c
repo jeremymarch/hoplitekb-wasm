@@ -221,6 +221,41 @@ int main(int argc, char **argv)
    	assert (len == 1);
    	assert (memcmp(buf, (UCS2[]){GREEK_SMALL_LETTER_ALPHA_WITH_TONOS}, 1) == 0);
 
+
+   	buf[0] = PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_OXIA_AND_MACRON;
+   	buf[1] = COMBINING_IOTA_SUBSCRIPT;
+   	len = 2;
+   	accentSyllable((UCS2*)buf, &len, GRAVE, true, PRECOMPOSED_WITH_PUA_MODE);
+   	assert (len == 2);
+   	assert (memcmp(buf, (UCS2[]){PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_VARIA_AND_MACRON, COMBINING_IOTA_SUBSCRIPT}, 2) == 0);
+
+   	buf[0] = PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_OXIA_AND_MACRON;
+   	buf[1] = COMBINING_IOTA_SUBSCRIPT;
+   	len = 2;
+   	accentSyllable((UCS2*)buf, &len, IOTA_SUBSCRIPT, true, PRECOMPOSED_WITH_PUA_MODE);
+   	assert (len == 1);
+   	assert (memcmp(buf, (UCS2[]){PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_OXIA_AND_MACRON}, 1) == 0);
+
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[1] = COMBINING_MACRON;
+   	buf[2] = COMBINING_SMOOTH_BREATHING;
+   	buf[3] = COMBINING_ACUTE;
+   	buf[4] = COMBINING_IOTA_SUBSCRIPT;
+   	len = 5;
+   	accentSyllable((UCS2*)buf, &len, GRAVE, true, COMBINING_ONLY_MODE);
+   	assert (len == 5);
+   	assert (memcmp(buf, (UCS2[]){GREEK_SMALL_LETTER_ALPHA,COMBINING_MACRON,COMBINING_SMOOTH_BREATHING,COMBINING_GRAVE,COMBINING_IOTA_SUBSCRIPT}, 5) == 0);
+
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[1] = COMBINING_MACRON;
+   	buf[2] = COMBINING_SMOOTH_BREATHING;
+   	buf[3] = COMBINING_ACUTE;
+   	buf[4] = COMBINING_IOTA_SUBSCRIPT;
+   	len = 5;
+   	accentSyllable((UCS2*)buf, &len, GRAVE, true, PRECOMPOSED_WITH_PUA_MODE);
+   	assert (len == 2);
+   	assert (memcmp(buf, (UCS2[]){PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_VARIA_AND_MACRON,COMBINING_IOTA_SUBSCRIPT}, 2) == 0);
+
    	/*
    	for (int u = 0; u < NUM_UNICODE_MODES; u++)
    	{
