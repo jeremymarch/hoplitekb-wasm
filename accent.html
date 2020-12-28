@@ -47,20 +47,17 @@ const importObject = {
 function stripDiacriticsLocal(origChars) {
     
     var len = origChars.length;
-    console.log("aaa: " + len);
     //add letter and any combining diacritics to the buffer as code points
     for (var i = 0; i < len; i++) {
         wasmBuffer[i] = origChars.codePointAt(i);
     }
 
     len = stripDiacritics2(wasmBuffer.byteOffset, len, 1);
-    console.log("bbb: " + len);
     //transform the returned code points back to a string
     var newLetter = "";
     for (var i = 0; i < len; i++) {
         newLetter += String.fromCodePoint(wasmBuffer[i]);
     }
-    console.log("ccc: " + newLetter.length + "(" + newLetter + ")");
     return newLetter;
 }
 

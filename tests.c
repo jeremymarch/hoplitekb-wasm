@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <assert.h>
+#include <string.h>
 #include "accent.h"
 #include "GreekUnicode.h"
 
@@ -208,8 +209,29 @@ int main(int argc, char **argv)
    	assert( compareUTF8("ω", "ὤ", _HK_COMP_DIA_SENSITIVE) == 1);
    	assert( compareUTF8("ω", "ὤ", _HK_COMP_INSENSITIVE) == 0);
 
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	int len = 1;
+   	accentSyllable((UCS2*)buf, &len, ACUTE, true, PRECOMPOSED_WITH_PUA_MODE);
+   	assert (len == 1);
+   	assert (memcmp(buf, (UCS2[]){GREEK_SMALL_LETTER_ALPHA_WITH_VARIA}, 1) != 0);
 
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	len = 1;
+   	accentSyllable((UCS2*)buf, &len, ACUTE, true, PRECOMPOSED_WITH_PUA_MODE);
+   	assert (len == 1);
+   	assert (memcmp(buf, (UCS2[]){GREEK_SMALL_LETTER_ALPHA_WITH_TONOS}, 1) == 0);
 
-
+   	/*
+   	for (int u = 0; u < NUM_UNICODE_MODES; u++)
+   	{
+	   	for (int i = 0; i < NUM_ACCENTABLE_CHARS; i++)
+	   	{
+	   		for (int d = 0; d < NUM_DIACRITIC_PERMUTATIONS; d++)
+	   		{
+	   			accentSyllable();
+	   		}
+	   	}
+	}
+   */
    	printf("All tests passed\n");
 }

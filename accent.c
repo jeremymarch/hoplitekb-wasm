@@ -891,6 +891,7 @@ bool analyzePrecomposedLetterOLD(UCS2 letter, int *l, int *a)
  */
 int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *diacritics)
 {
+    //*diacritics: do not initialize it, its value is being added to here
     int offset = 0;
     UCS2 returnChar = 0; //will be NOCHAR, NOT_ACCENTABLE_CHAR, or the base vowel if ACCENTABLE_CHAR
     if (letterToAnalyze >= 0x0370 && letterToAnalyze <= 0x03FF)
@@ -900,6 +901,7 @@ int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *diacri
         returnChar = basicGreekLookUp[offset][0];
         if (returnChar == NOCHAR)
         {
+            *l = letterToAnalyze;
             return NOCHAR;
         }
         else if (returnChar == NOT_ACCENTABLE_CHAR)
@@ -921,6 +923,7 @@ int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *diacri
         returnChar = extendedGreekLookUp[offset][0];
         if (returnChar == NOCHAR)
         {
+            *l = letterToAnalyze;
             return NOCHAR;
         }
         else if (returnChar == NOT_ACCENTABLE_CHAR)
@@ -942,6 +945,7 @@ int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *diacri
         returnChar = puaGreekLookUp[offset][0];
         if (returnChar == NOCHAR)
         {
+            *l = letterToAnalyze;
             return NOCHAR;
         }
         else if (returnChar == NOT_ACCENTABLE_CHAR)
@@ -1444,7 +1448,10 @@ size_t analyzeLetter(UCS2 *ucs2String, int len, UCS2 *letter, unsigned int *diac
     return letterLen;
 }
 
-void makeLetterCombining(UCS2 *ucs2String, int *letterLen, UCS2 letter, unsigned int diacritics, int unicodeMode)
+/*
+ucs2String must have at least NUM_COMBINING_ACCENTS + 1 slots to grow
+*/
+void makeLetterCombining(UCS2 *ucs2String, int *letterLen, UCS2 letter, unsigned int diacritics)
 {
     *letterLen = 0;
     ucs2String[(*letterLen)++] = letter; //set base letter
@@ -1548,7 +1555,7 @@ bool makeLetter(UCS2 *ucs2String, int *newLetterLen, UCS2 letter, unsigned int d
     *newLetterLen = 1;
     if (unicode_mode == COMBINING_ONLY_MODE || precomposingFallbackToComposing)
     {
-        makeLetterCombining(ucs2String, newLetterLen, letter, diacritics, unicodeMode);
+        makeLetterCombining(ucs2String, newLetterLen, letter, diacritics);
         return true;
     }
     else
@@ -1678,16 +1685,15 @@ int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
 {
     size_t i1 = 0;
     size_t i2 = 0;
+    UCS2 temp1 = 0;
+    UCS2 temp2 = 0;
+    unsigned int diacritics1 = 0;
+    unsigned int diacritics2 = 0;
+    UCS2 type1 = 0;
+    UCS2 type2 = 0;
 
     while (i1 < len1 && i2 < len2)
     {
-        UCS2 temp1 = 0;
-        UCS2 temp2 = 0;
-        unsigned int diacritics1 = 0;
-        unsigned int diacritics2 = 0;
-        UCS2 type1 = 0;
-        UCS2 type2 = 0;
-
         size_t l1 = analyzeLetter(&s1[i1], len1 - i1, &temp1, &diacritics1, &type1);
         size_t l2 = analyzeLetter(&s2[i2], len2 - i2, &temp2, &diacritics2, &type2);
 
@@ -1708,7 +1714,7 @@ int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
         }
         if (temp1 < 0x0370 || temp1 > 0x03FF || temp2 < 0x0370 || temp2 > 0x03FF) //non-greek = not equal
         {
-            return 1; //we do not care about sort order for this, for now
+            return 1; //we do not care about sort order for this, for now: just return 1.
         }
 
         if (basicGreekLookUp[temp1 - 0x0370][2] < basicGreekLookUp[temp2 - 0x0370][2])
@@ -1722,7 +1728,7 @@ int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
 
         if ((compareType & _HK_COMP_DIA_SENSITIVE) == _HK_COMP_DIA_SENSITIVE && diacritics1 != diacritics2)
         {
-            return 1; //we do not care about sort order for this, for now
+            return 1; //we do not care about sort order for this, for now: just return 1.
         }
     }
 
@@ -1754,13 +1760,9 @@ int stripDiacritics(UCS2 *ucs2String, int len, int removeNonGreek)
     unsigned int diacritics;
     int strEnd = 0;
     UCS2 *end = p + len;
-    while ( p < end )//(int i = 0; i < len; )
+    while ( p < end )
     {
         size_t letterLen = analyzeLetter(p, len, &tempChar, &diacritics, &type);
-        #ifndef __EMSCRIPTEN__
-        printf("\t(%d), len: %zu\n", len, letterLen);
-        #endif
-        //i += letterLen;
         p += letterLen;
         if (type != NOCHAR || !removeNonGreek)
         {
