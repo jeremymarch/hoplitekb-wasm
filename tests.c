@@ -256,6 +256,9 @@ int main(int argc, char **argv)
    	assert (len == 2);
    	assert (memcmp(buf, (UCS2[]){PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_VARIA_AND_MACRON,COMBINING_IOTA_SUBSCRIPT}, 2) == 0);
 
+   	int a = (_MACRON == _MACRON);
+   	printf("bool %d\n", a);
+
    	/*
    	for (int u = 0; u < NUM_UNICODE_MODES; u++)
    	{
