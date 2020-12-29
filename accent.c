@@ -1316,7 +1316,7 @@ unsigned int updateDiacritics(UCS2 letter, int accentToAdd, unsigned int diacrit
                 diacritics &= ~_CIRCUMFLEX;
             else
                 diacritics |= _CIRCUMFLEX;
-            diacritics &= ~(_ACUTE | _GRAVE | _MACRON); //turn off
+            diacritics &= ~(_ACUTE | _GRAVE | _MACRON);
             break;
         case GRAVE:
             if (toggleOff && (diacritics & _GRAVE) == _GRAVE)
@@ -1681,6 +1681,7 @@ int compareUTF8(char *s1, char *s2, int compareType)
 //unknown always sort above/below known
 //consider unknown the end of word
 
+//compareType includes which diacritics to be insensitive to and also whether to ignore non-greek and, in the future to test case
 int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
 {
     size_t i1 = 0;
@@ -1726,7 +1727,7 @@ int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
             return 1;
         }
 
-        if ((compareType & _HK_COMP_DIA_SENSITIVE) == _HK_COMP_DIA_SENSITIVE && diacritics1 != diacritics2)
+        if ( (diacritics1 & ~compareType) != (diacritics2 & ~compareType) )
         {
             return 1; //we do not care about sort order for this, for now: just return 1.
         }

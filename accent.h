@@ -42,9 +42,14 @@ enum {
     _IOTA_SUB   = 1 << 6,
     _DIAERESIS  = 1 << 7,
     _BREVE      = 1 << 8,
-    _UNDERDOT   = 1 << 9
+    _UNDERDOT   = 1 << 9,
+
+    _CASE_SENSITIVE = 1 << 10,
+    _HK_IGNORE_UNKNOWN_CHARS = 1 << 11
 };
 
+#define _HK_COMP_INSENSITIVE _MACRON|_SMOOTH|_ROUGH|_ACUTE|_GRAVE|_CIRCUMFLEX|_IOTA_SUB|_DIAERESIS|_BREVE|_UNDERDOT
+#define _HK_COMP_DIA_SENSITIVE 0
 enum {
     PRECOMPOSED_MODE            = 0,
     PRECOMPOSED_WITH_PUA_MODE,
@@ -52,12 +57,6 @@ enum {
     PRECOMPOSED_HC_MODE //this is legacy for the hoplite challenge app which uses combining macron even if no other diacritics
 };
 
-#define _HK_COMP_INSENSITIVE 0
-enum {
-    _HK_COMP_DIA_SENSITIVE    = 1 << 0,
-    _HK_COMP_CASE_SENSITIVE   = 1 << 1,
-    _HK_IGNORE_UNKNOWN_CHARS  = 1 << 2
-};
 
 void allowSpacingDiacritics(bool val);
 

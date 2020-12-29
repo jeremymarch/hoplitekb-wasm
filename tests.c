@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <string.h>
 #include "accent.h"
+#include <limits.h>
 #include "GreekUnicode.h"
 
 int main(int argc, char **argv)
@@ -255,10 +256,16 @@ int main(int argc, char **argv)
    	accentSyllable((UCS2*)buf, &len, GRAVE, true, PRECOMPOSED_WITH_PUA_MODE);
    	assert (len == 2);
    	assert (memcmp(buf, (UCS2[]){PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_VARIA_AND_MACRON,COMBINING_IOTA_SUBSCRIPT}, 2) == 0);
+/*
+   	#define INSENSITIVE ~(_MACRON|_SMOOTH|_ROUGH|_ACUTE|_GRAVE|_CIRCUMFLEX|_IOTA_SUB|_DIAERESIS|_BREVE|_UNDERDOT)
+	#define ACCENT_INSENSITIVE ~(_ACUTE|_GRAVE|_CIRCUMFLEX)
 
-   	int a = (_MACRON == _MACRON);
+   	unsigned int insensitiveMask = ACCENT_INSENSITIVE;// ~(_SMOOTH | _CIRCUMFLEX);
+   	int a1 = _CIRCUMFLEX;
+   	int a2 = _ACUTE;
+   	int a = (a1 & insensitiveMask) == (a2 & insensitiveMask);
    	printf("bool %d\n", a);
-
+*/
    	/*
    	for (int u = 0; u < NUM_UNICODE_MODES; u++)
    	{
