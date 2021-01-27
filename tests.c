@@ -8,20 +8,67 @@
 int main(int argc, char **argv)
 {
 	UCS2 buf[1024];
-/*
- 	UCS2 s[] = {0x03B1, 0x03B1, 0x0345};
- 	int len1 = stripDiacritics(s, 3);
-
- 	printf("test: %d\n", len1);//accentSyllableUtf8("ω", 1, 1) );
-
- 	UCS2 s2[] = {0x03B1, 0x0345};
- 	int len2 = stripDiacritics(s2, 2);
-
-    printf("test: %d\n", len2);//accentSyllableUtf8("ω", 1, 1) );
+	int len = 0;
 
 
 
-    int len = 0;
+   	int bufferLen2 = 0;
+   	int bufferCapacity = 1024;
+   	UCS2 buf2[1024];
+   	/*
+   	buf[0] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[1] = COMBINING_MACRON;
+   	buf[2] = COMBINING_SMOOTH_BREATHING;
+   	buf[3] = COMBINING_ACUTE;
+   	buf[4] = COMBINING_IOTA_SUBSCRIPT;
+   	len = 5;
+   	convertString((UCS2*)buf, len, buf2, &bufferLen2, bufferCapacity, PRECOMPOSED_WITH_PUA_MODE);
+   	assert (bufferLen2 == 2);
+   	assert (memcmp(buf2, (UCS2[]){PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_OXIA_AND_MACRON,COMBINING_IOTA_SUBSCRIPT}, 2*sizeof(UCS2) ) == 0);
+
+
+   	buf[0] = PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_OXIA_AND_MACRON;
+   	buf[1] = COMBINING_IOTA_SUBSCRIPT;
+   	len = 2;
+   	bufferLen2 = 0;
+   	convertString((UCS2*)buf, len, (UCS2*)buf2, &bufferLen2, bufferCapacity, COMBINING_ONLY_MODE);
+   	//printf("len: %d, %02X %02X\n", bufferLen2, buf2[0], buf2[1]);
+   	assert (bufferLen2 == 5);
+   	assert (memcmp(buf2, (UCS2[]){GREEK_SMALL_LETTER_ALPHA, COMBINING_MACRON,COMBINING_SMOOTH_BREATHING,COMBINING_ACUTE,COMBINING_IOTA_SUBSCRIPT}, 5*sizeof(UCS2) ) == 0);
+*/
+   	buf[0] = GREEK_SMALL_LETTER_BETA;
+   	buf[1] = PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_OXIA_AND_MACRON;
+   	buf[2] = COMBINING_IOTA_SUBSCRIPT;
+   	buf[3] = GREEK_SMALL_LETTER_GAMMA;
+   	len = 4;
+   	bufferLen2 = 0;
+   	convertString((UCS2*)buf, len, (UCS2*)buf2, &bufferLen2, bufferCapacity, COMBINING_ONLY_MODE);
+   	//printf("len: %d, %02X %02X\n", bufferLen2, buf2[0], buf2[1]);
+   	assert (bufferLen2 == 7);
+   	assert (memcmp(buf2, (UCS2[]){GREEK_SMALL_LETTER_BETA,GREEK_SMALL_LETTER_ALPHA, COMBINING_MACRON,COMBINING_SMOOTH_BREATHING,COMBINING_ACUTE,COMBINING_IOTA_SUBSCRIPT,GREEK_SMALL_LETTER_GAMMA}, 7*sizeof(UCS2) ) == 0);
+
+
+ 	UCS2 s1[] = {GREEK_SMALL_LETTER_ALPHA, GREEK_SMALL_LETTER_ALPHA, COMBINING_IOTA_SUBSCRIPT};
+ 	assert(stripDiacritics(s1, 3, 0) == 2);
+ 	assert (memcmp(s1, (UCS2[]){GREEK_SMALL_LETTER_ALPHA,GREEK_SMALL_LETTER_ALPHA}, 2*sizeof(UCS2)) == 0);
+
+ 	UCS2 s2[] = {GREEK_SMALL_LETTER_ALPHA, COMBINING_IOTA_SUBSCRIPT};
+ 	assert(stripDiacritics(s2, 2, 0) == 1);
+ 	assert (memcmp(s2, (UCS2[]){GREEK_SMALL_LETTER_ALPHA}, 1*sizeof(UCS2)) == 0);
+
+ 	//strip diacritics removing non-greek
+ 	UCS2 s3[] = {GREEK_SMALL_LETTER_ALPHA, COMBINING_IOTA_SUBSCRIPT, 0x0061};
+ 	assert(stripDiacritics(s3, 2, 1) == 1);
+ 	assert (memcmp(s3, (UCS2[]){GREEK_SMALL_LETTER_ALPHA}, 1*sizeof(UCS2)) == 0);
+
+ 	//strip diacritics keeping non-greek
+ 	UCS2 s4[] = {GREEK_SMALL_LETTER_ALPHA, COMBINING_IOTA_SUBSCRIPT, 0x0061};
+ 	assert(stripDiacritics(s4, 3, 0) == 2);
+ 	assert (memcmp(s4, (UCS2[]){GREEK_SMALL_LETTER_ALPHA, 0x0061}, 2*sizeof(UCS2)) == 0);
+
+
+	/*
+    
     bool l = makeLetter((UCS2*)&buf, &len, 0x03B1, _ACUTE, PRECOMPOSED_WITH_PUA_MODE);
     printf("letter %04x %d, %d\n", buf[0], len, l);
 
@@ -211,16 +258,16 @@ int main(int argc, char **argv)
    	assert( compareUTF8("ω", "ὤ", _HK_COMP_INSENSITIVE) == 0);
 
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
-   	int len = 1;
+   	len = 1;
    	accentSyllable((UCS2*)buf, &len, ACUTE, true, PRECOMPOSED_WITH_PUA_MODE);
    	assert (len == 1);
-   	assert (memcmp(buf, (UCS2[]){GREEK_SMALL_LETTER_ALPHA_WITH_VARIA}, 1) != 0);
+   	assert (memcmp(buf, (UCS2[]){GREEK_SMALL_LETTER_ALPHA_WITH_VARIA}, 1*sizeof(UCS2)) != 0);
 
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
    	len = 1;
    	accentSyllable((UCS2*)buf, &len, ACUTE, true, PRECOMPOSED_WITH_PUA_MODE);
    	assert (len == 1);
-   	assert (memcmp(buf, (UCS2[]){GREEK_SMALL_LETTER_ALPHA_WITH_TONOS}, 1) == 0);
+   	assert (memcmp(buf, (UCS2[]){GREEK_SMALL_LETTER_ALPHA_WITH_TONOS}, 1*sizeof(UCS2)) == 0);
 
 
    	buf[0] = PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_OXIA_AND_MACRON;
@@ -228,14 +275,14 @@ int main(int argc, char **argv)
    	len = 2;
    	accentSyllable((UCS2*)buf, &len, GRAVE, true, PRECOMPOSED_WITH_PUA_MODE);
    	assert (len == 2);
-   	assert (memcmp(buf, (UCS2[]){PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_VARIA_AND_MACRON, COMBINING_IOTA_SUBSCRIPT}, 2) == 0);
+   	assert (memcmp(buf, (UCS2[]){PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_VARIA_AND_MACRON, COMBINING_IOTA_SUBSCRIPT}, 2*sizeof(UCS2)) == 0);
 
    	buf[0] = PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_OXIA_AND_MACRON;
    	buf[1] = COMBINING_IOTA_SUBSCRIPT;
    	len = 2;
    	accentSyllable((UCS2*)buf, &len, IOTA_SUBSCRIPT, true, PRECOMPOSED_WITH_PUA_MODE);
    	assert (len == 1);
-   	assert (memcmp(buf, (UCS2[]){PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_OXIA_AND_MACRON}, 1) == 0);
+   	assert (memcmp(buf, (UCS2[]){PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_OXIA_AND_MACRON}, 1*sizeof(UCS2)) == 0);
 
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
    	buf[1] = COMBINING_MACRON;
@@ -245,7 +292,7 @@ int main(int argc, char **argv)
    	len = 5;
    	accentSyllable((UCS2*)buf, &len, GRAVE, true, COMBINING_ONLY_MODE);
    	assert (len == 5);
-   	assert (memcmp(buf, (UCS2[]){GREEK_SMALL_LETTER_ALPHA,COMBINING_MACRON,COMBINING_SMOOTH_BREATHING,COMBINING_GRAVE,COMBINING_IOTA_SUBSCRIPT}, 5) == 0);
+   	assert (memcmp(buf, (UCS2[]){GREEK_SMALL_LETTER_ALPHA,COMBINING_MACRON,COMBINING_SMOOTH_BREATHING,COMBINING_GRAVE,COMBINING_IOTA_SUBSCRIPT}, 5*sizeof(UCS2)) == 0);
 
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
    	buf[1] = COMBINING_MACRON;
@@ -255,7 +302,8 @@ int main(int argc, char **argv)
    	len = 5;
    	accentSyllable((UCS2*)buf, &len, GRAVE, true, PRECOMPOSED_WITH_PUA_MODE);
    	assert (len == 2);
-   	assert (memcmp(buf, (UCS2[]){PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_VARIA_AND_MACRON,COMBINING_IOTA_SUBSCRIPT}, 2) == 0);
+   	assert (memcmp(buf, (UCS2[]){PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_VARIA_AND_MACRON,COMBINING_IOTA_SUBSCRIPT}, 2*sizeof(UCS2)) == 0);
+
 /*
    	#define INSENSITIVE ~(_MACRON|_SMOOTH|_ROUGH|_ACUTE|_GRAVE|_CIRCUMFLEX|_IOTA_SUB|_DIAERESIS|_BREVE|_UNDERDOT)
 	#define ACCENT_INSENSITIVE ~(_ACUTE|_GRAVE|_CIRCUMFLEX)
@@ -278,5 +326,7 @@ int main(int argc, char **argv)
 	   	}
 	}
    */
+
+
    	printf("All tests passed\n");
 }

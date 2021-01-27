@@ -80,6 +80,6 @@ int compareSort(int len_a, const unsigned char *a, int len_b, const unsigned cha
 int hccontainsPUA(const unsigned char *utf8);
 int hcucHex(const unsigned char *utf8, int bufferLen, char *buffer);
 
-
+void convertString(UCS2 *str, int len, UCS2 *buffer, int *bufferLen, int bufferCapacity, int unicodeMode);
 
 #endif /* accent_h */

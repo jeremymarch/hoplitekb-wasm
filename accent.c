@@ -1455,7 +1455,7 @@ void makeLetterCombining(UCS2 *ucs2String, int *letterLen, UCS2 letter, unsigned
 {
     *letterLen = 0;
     ucs2String[(*letterLen)++] = letter; //set base letter
-    
+
     //loop so that order is determined by combiningAccents array
     for (int k = 0; k < NUM_COMBINING_ACCENTS; k++)
     {
@@ -1490,6 +1490,7 @@ void makeLetterCombining(UCS2 *ucs2String, int *letterLen, UCS2 letter, unsigned
             ucs2String[(*letterLen)++] = combiningAccents[k];
         }
     }
+
     /* The loop above results in smaller code in EMPSCRIPTEN???
     //in order that they should appear
     if ( (diacritics & _MACRON) == _MACRON ){
@@ -1532,14 +1533,14 @@ bool makeLetter(UCS2 *ucs2String, int *newLetterLen, UCS2 letter, unsigned int d
     int i = 0;
     //fallback if macron + one more diacritic
     bool precomposingFallbackToComposing = false;
-    if ((unicode_mode == PRECOMPOSED_MODE && (diacritics & _MACRON) == _MACRON) || (unicodeMode == PRECOMPOSED_WITH_PUA_MODE && (diacritics & (_MACRON | _DIAERESIS)) == (_MACRON | _DIAERESIS)))
+    if ((unicodeMode == PRECOMPOSED_MODE && (diacritics & _MACRON) == _MACRON) || (unicodeMode == PRECOMPOSED_WITH_PUA_MODE && (diacritics & (_MACRON | _DIAERESIS)) == (_MACRON | _DIAERESIS)))
     {
         if ((diacritics & ~_MACRON) != 0)//if any other bits set besides macron
         {
             precomposingFallbackToComposing = true;
         }
     }
-    else if ((unicode_mode == PRECOMPOSED_MODE && (diacritics & _BREVE) == _BREVE))
+    else if ((unicodeMode == PRECOMPOSED_MODE && (diacritics & _BREVE) == _BREVE))
     {
         if ((diacritics & ~_BREVE) != 0)//if any other bits set besides macron
         {
@@ -1553,7 +1554,7 @@ bool makeLetter(UCS2 *ucs2String, int *newLetterLen, UCS2 letter, unsigned int d
     }
 
     *newLetterLen = 1;
-    if (unicode_mode == COMBINING_ONLY_MODE || precomposingFallbackToComposing)
+    if (unicodeMode == COMBINING_ONLY_MODE || precomposingFallbackToComposing)
     {
         makeLetterCombining(ucs2String, newLetterLen, letter, diacritics);
         return true;
@@ -1562,7 +1563,7 @@ bool makeLetter(UCS2 *ucs2String, int *newLetterLen, UCS2 letter, unsigned int d
     {
         //fix me
         bool needToAddIotaSubscript = false;
-        if (unicode_mode == PRECOMPOSED_WITH_PUA_MODE && (diacritics & (_IOTA_SUB | _MACRON)) == (_IOTA_SUB | _MACRON))
+        if (unicodeMode == PRECOMPOSED_WITH_PUA_MODE && (diacritics & (_IOTA_SUB | _MACRON)) == (_IOTA_SUB | _MACRON))
         {
             needToAddIotaSubscript = true;
             diacritics &= ~_IOTA_SUB; //so we don't get two iota subscripts
@@ -1747,13 +1748,6 @@ int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
     }
 }
 
-/*
-int convert(char *utf8, UCS2 *ucs2String, int len, int unicodemode)
-{
-    //convert to ucs2 minding len buffer length
-    //then walk the ucs2 string converting it in place
-}
-*/
 int stripDiacritics(UCS2 *ucs2String, int len, int removeNonGreek)
 {
     UCS2 tempChar, type;
@@ -1761,10 +1755,12 @@ int stripDiacritics(UCS2 *ucs2String, int len, int removeNonGreek)
     unsigned int diacritics;
     int strEnd = 0;
     UCS2 *end = p + len;
+    int i = 0;
     while ( p < end )
     {
-        size_t letterLen = analyzeLetter(p, len, &tempChar, &diacritics, &type);
+        size_t letterLen = analyzeLetter(p, len - i, &tempChar, &diacritics, &type);
         p += letterLen;
+        i += letterLen;
         if (type != NOCHAR || !removeNonGreek)
         {
             ucs2String[strEnd++] = tempChar;
@@ -1773,6 +1769,51 @@ int stripDiacritics(UCS2 *ucs2String, int len, int removeNonGreek)
     len = strEnd;
     return len;
 }
+
+/*
+int convert(char *utf8, UCS2 *ucs2String, int len, int unicodemode)
+{
+    //convert to ucs2 minding len buffer length
+    //then walk the ucs2 string converting it in place
+}
+*/
+void convertString(UCS2 *str, int len, UCS2 *buffer, int *bufferLen, int bufferCapacity, int unicodeMode)
+{
+    UCS2 baseLetter = 0;
+    unsigned int diacritics = 0;
+    UCS2 type = 0;
+
+    *bufferLen = 0;
+    UCS2 *b2 = buffer;
+    size_t i = 0;
+    int tempBLen = 0;
+
+    for ( ; i < len && *bufferLen + MAX_COMBINING < bufferCapacity; ) {
+        size_t letterLen = analyzeLetter(&str[i], len - i, &baseLetter, &diacritics, &type);
+        //printf("len %d\n", letterLen);
+        if (!makeLetter(b2, &tempBLen, baseLetter, diacritics, unicodeMode)) {
+            assert(1 == 2);
+            return;
+        }
+
+        i += letterLen;
+        b2 += tempBLen;
+        *bufferLen += tempBLen;
+    }
+}
+
+/*
+void accentContext(UCS2 *str, int *len, int cursorPos)
+{
+    for (int i = cursorPos; i < *len; i++)
+    {
+        if ( !isCombining(str[i]) ) {
+            break;
+        }
+    }
+}
+
+*/
 
 //there should be room for a least MAX_COMBINING more characters at the end of ucs2String, in case it needs to grow
 void accentSyllable(UCS2 *ucs2String, int *len, int accentToAdd, bool toggleOff, int unicodeMode)
@@ -1868,7 +1909,7 @@ void accentSyllable(UCS2 *ucs2String, int *len, int accentToAdd, bool toggleOff,
     unsigned int diacritics = 0;
     
     //this will be -1 on error
-    UCS2 type;
+    UCS2 type = 0;
     size_t letterLen = analyzeLetter(ucs2String, *len, &baseLetter, &diacritics, &type);
     if (type != ACCENTABLE_CHAR) {
 
