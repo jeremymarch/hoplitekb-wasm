@@ -1790,11 +1790,7 @@ void convertString(UCS2 *str, int len, UCS2 *buffer, int *bufferLen, int bufferC
 
     for ( ; i < len && *bufferLen + MAX_COMBINING < bufferCapacity; ) {
         size_t letterLen = analyzeLetter(&str[i], len - i, &baseLetter, &diacritics, &type);
-        //printf("len %d\n", letterLen);
-        if (!makeLetter(b2, &tempBLen, baseLetter, diacritics, unicodeMode)) {
-            assert(1 == 2);
-            return;
-        }
+        makeLetter(b2, &tempBLen, baseLetter, diacritics, unicodeMode);
 
         i += letterLen;
         b2 += tempBLen;

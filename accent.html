@@ -52,7 +52,9 @@ function stripDiacriticsLocal(origChars) {
         wasmBuffer[i] = origChars.codePointAt(i);
     }
 
-    len = stripDiacritics2(wasmBuffer.byteOffset, len, 1);
+    var stripMode = $("input:radio[name='stripMode']:checked").val();
+
+    len = stripDiacritics2(wasmBuffer.byteOffset, len, stripMode);
     //transform the returned code points back to a string
     var newLetter = "";
     for (var i = 0; i < len; i++) {
@@ -81,7 +83,7 @@ loadWebAssembly('hoplitekb.wasm')
     wasmBuffer2 = new Uint16Array(memory.buffer, 2048, 1024);
     
     // now we are ready, set up the button so the user can run the code
-    var button = document.getElementById('b');
+    var button = document.getElementById('compareButton');
     button.value = 'Call a method in the WebAssembly module';
     button.addEventListener('click', compareLocal);
     
@@ -150,7 +152,9 @@ var gr = ["α","β","ψ","δ","ε","φ","γ","η","ι","ξ","κ","λ","μ","ν",
 var forceLowercase = true;
 function transliterate(char)
 {
-    var theChar = (forceLowercase) ? char.toLowerCase() : char;
+    var f = $("input:radio[name='lowerCaseMode']:checked").val();
+
+    var theChar = (f != 0) ? char.toLowerCase() : char;
     var idx = la.indexOf(theChar);
     if (idx > -1) {
         return gr[idx];
@@ -304,12 +308,19 @@ function handleKey(evt) {
     <input type="radio" name="unicodeMode" value="1">Precomposed with PUA
     <input type="radio" name="unicodeMode" value="2">Combining-only
 
+    | <input type="radio" name="lowerCaseMode" value="1">Force Lowercase
+    <input type="radio" name="lowerCaseMode" value="0">Allow Lowercase
+
 	<input class="gkinput" type="text" id="inp"/>
     <input class="gkinputcodes" type="text" id="codes"/>
+
+    Strip diacritics: <input type="radio" name="stripMode" value="1">strip non-Greek
+    <input type="radio" name="stripMode" value="0">keep non-Greek
     <input class="gkinputcodes" type="text" id="codes2"/>
     <input class="gkinputcodes" type="text" id="codes3"/>
+
     <br><br>
-    <button id="b">compare</button>
+    <button id="compareButton">compare</button>
     <input class="gkinput" type="text" id="comp1"/><br>
     <input class="gkinput" type="text" id="comp2"/><br>
     <div id="res"></div>
