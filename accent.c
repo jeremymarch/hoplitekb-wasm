@@ -913,7 +913,6 @@ int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *diacri
         {
             *l = returnChar;
             *diacritics |= basicGreekLookUp[offset][1];
-            //fprintf(stderr, "basic letter: %d, accent: %d", *l, *a);
             return ACCENTABLE_CHAR;
         }
     }
@@ -1582,6 +1581,9 @@ bool makeLetter(UCS2 *ucs2String, int *newLetterLen, UCS2 letter, unsigned int d
             }
             else
             {
+                //if letter not found in table return the passed letter unchanged
+                ucs2String[0] = letter;
+                *newLetterLen = 1;
                 return false;
             }
         }
@@ -1777,7 +1779,7 @@ int convert(char *utf8, UCS2 *ucs2String, int len, int unicodemode)
     //then walk the ucs2 string converting it in place
 }
 */
-void convertString(UCS2 *str, int len, UCS2 *buffer, int *bufferLen, int bufferCapacity, int unicodeMode)
+int convertString(UCS2 *str, int len, UCS2 *buffer, int *bufferLen, int bufferCapacity, int unicodeMode)
 {
     UCS2 baseLetter = 0;
     unsigned int diacritics = 0;
@@ -1791,11 +1793,11 @@ void convertString(UCS2 *str, int len, UCS2 *buffer, int *bufferLen, int bufferC
     for ( ; i < len && *bufferLen + MAX_COMBINING < bufferCapacity; ) {
         size_t letterLen = analyzeLetter(&str[i], len - i, &baseLetter, &diacritics, &type);
         makeLetter(b2, &tempBLen, baseLetter, diacritics, unicodeMode);
-
         i += letterLen;
         b2 += tempBLen;
         *bufferLen += tempBLen;
     }
+    return *bufferLen;
 }
 
 /*

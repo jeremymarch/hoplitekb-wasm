@@ -12,7 +12,20 @@ int main(int argc, char **argv)
    	int bufferLen2 = 0;
    	int bufferCapacity = 1024;
    	UCS2 buf2[1024];
-   	
+  
+    buf[0] = GREEK_SMALL_LETTER_BETA;
+   	buf[1] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[2] = COMBINING_SMOOTH_BREATHING;
+   	buf[3] = COMBINING_ACUTE;
+   	buf[4] = COMBINING_IOTA_SUBSCRIPT;
+   	buf[5] = GREEK_SMALL_LETTER_GAMMA;
+   	len = 6;
+   	bufferLen2 = 0;
+   	convertString((UCS2*)buf, len, (UCS2*)buf2, &bufferLen2, bufferCapacity, PRECOMPOSED_MODE);
+   	assert (bufferLen2 == 3);
+   	assert (memcmp(buf2, (UCS2[]){GREEK_SMALL_LETTER_BETA, GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_OXIA_AND_YPOGEGRAMMENI, GREEK_SMALL_LETTER_GAMMA}, 3 * sizeof(UCS2) ) == 0);
+
+	
 
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
    	buf[1] = COMBINING_MACRON;
@@ -45,18 +58,8 @@ int main(int argc, char **argv)
    	assert (bufferLen2 == 7);
    	assert (memcmp(buf2, (UCS2[]){GREEK_SMALL_LETTER_BETA,GREEK_SMALL_LETTER_ALPHA, COMBINING_MACRON,COMBINING_SMOOTH_BREATHING,COMBINING_ACUTE,COMBINING_IOTA_SUBSCRIPT,GREEK_SMALL_LETTER_GAMMA}, 7*sizeof(UCS2) ) == 0);
 
-   	buf[0] = GREEK_SMALL_LETTER_BETA;
-   	buf[1] = GREEK_SMALL_LETTER_ALPHA;
-   	buf[2] = COMBINING_SMOOTH_BREATHING;
-   	buf[3] = COMBINING_ACUTE;
-   	buf[4] = COMBINING_IOTA_SUBSCRIPT;
-   	buf[5] = GREEK_SMALL_LETTER_GAMMA;
-   	len = 6;
-   	bufferLen2 = 0;
-   	convertString((UCS2*)buf, len, (UCS2*)buf2, &bufferLen2, bufferCapacity, PRECOMPOSED_MODE);
-   	//printf("len: %d, %02X %02X\n", bufferLen2, buf2[0], buf2[1]);
-   	assert (bufferLen2 == 3);
-   	assert (memcmp(buf2, (UCS2[]){GREEK_SMALL_LETTER_BETA, GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_OXIA_AND_YPOGEGRAMMENI, GREEK_SMALL_LETTER_GAMMA}, 3 * sizeof(UCS2) ) == 0);
+
+
 
 
  	UCS2 s1[] = {GREEK_SMALL_LETTER_ALPHA, GREEK_SMALL_LETTER_ALPHA, COMBINING_IOTA_SUBSCRIPT};
