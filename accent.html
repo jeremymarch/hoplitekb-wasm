@@ -100,7 +100,9 @@ function convertLocal()
         wasmBuffer1[i] = a.codePointAt(i);
     }
 
-    var newStringLen = convertWASM(wasmBuffer1.byteOffset, a.length, wasmBuffer2.byteOffset, 1024, 0);
+    var unicodeMode = $("input:radio[name='convertMode']:checked").val();
+
+    var newStringLen = convertWASM(wasmBuffer1.byteOffset, a.length, wasmBuffer2.byteOffset, 1024, parseInt(unicodeMode));
 
     var newStr = "";
     for (var i = 0; i < newStringLen; i++) {
@@ -314,6 +316,16 @@ function handleKey(evt) {
 	border: 2px solid #666;
     font-family: WebNewAthenaUnicode,NewAthenaUnicode, helvetica,arial;
 }
+.gkinputnontyping {
+    width: 100%;
+    height: 40px;
+    font-size: 20pt;
+    border-radius: 6px;
+    margin: 5px;
+    padding-left: 9px;
+    border: 2px solid #666;
+    font-family: WebNewAthenaUnicode,NewAthenaUnicode, helvetica,arial;
+}
 .gkinputcodes {
     width: 100%;
     height: 40px;
@@ -339,10 +351,13 @@ function handleKey(evt) {
 
     Strip diacritics: <input type="radio" name="stripMode" value="1">strip non-Greek
     <input type="radio" name="stripMode" value="0">keep non-Greek
-    <input class="gkinputcodes" type="text" id="codes2"/>
+    <input class="gkinputnontyping" type="text" id="codes2"/>
     <input class="gkinputcodes" type="text" id="codes3"/>
-    <br>Convert<br>
-    <input class="gkinputcodes" type="text" id="conv1"/>
+    <br>Convert:  
+        <input type="radio" name="convertMode" value="0">Precomposed
+    <input type="radio" name="convertMode" value="1">Precomposed with PUA
+    <input type="radio" name="convertMode" value="2">Combining-only<br>
+    <input class="gkinputnontyping" type="text" id="conv1"/>
     <input class="gkinputcodes" type="text" id="conv2"/>
 
     <br><br>
