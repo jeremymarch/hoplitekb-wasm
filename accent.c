@@ -1779,25 +1779,26 @@ int convert(char *utf8, UCS2 *ucs2String, int len, int unicodemode)
     //then walk the ucs2 string converting it in place
 }
 */
-int convertString(UCS2 *str, int len, UCS2 *buffer, int *bufferLen, int bufferCapacity, int unicodeMode)
+
+int convertString(UCS2 *str, int len, UCS2 *buffer, int bufferCapacity, int unicodeMode)
 {
     UCS2 baseLetter = 0;
     unsigned int diacritics = 0;
     UCS2 type = 0;
 
-    *bufferLen = 0;
+    int bufferLen = 0;
     UCS2 *b2 = buffer;
     size_t i = 0;
     int tempBLen = 0;
 
-    for ( ; i < len && *bufferLen + MAX_COMBINING < bufferCapacity; ) {
+    for ( ; i < len && bufferLen + MAX_COMBINING < bufferCapacity; ) {
         size_t letterLen = analyzeLetter(&str[i], len - i, &baseLetter, &diacritics, &type);
         makeLetter(b2, &tempBLen, baseLetter, diacritics, unicodeMode);
         i += letterLen;
         b2 += tempBLen;
-        *bufferLen += tempBLen;
+        bufferLen += tempBLen;
     }
-    return *bufferLen;
+    return bufferLen;
 }
 
 /*

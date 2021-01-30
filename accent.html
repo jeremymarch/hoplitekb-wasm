@@ -69,12 +69,14 @@ var wasmBuffer2;
 var accentSyllableWASM;
 var stripDiacritics2;
 var compareWASM;
+var convertWASM;
 
 loadWebAssembly('hoplitekb.wasm')
   .then(instance => {
     var exports = instance.exports;
     accentSyllableWASM = exports.accentSyllable2;
     stripDiacritics2 = exports.stripDiacritics;
+    convertWASM = exports.convertString;
     compareWASM = exports.compare;
     var memory = exports.memory;
 
@@ -89,6 +91,26 @@ loadWebAssembly('hoplitekb.wasm')
     
   }
 );
+
+function convertLocal()
+{
+    var a = $("#inp").val();
+
+    for (var i = 0; i < a.length; i++) {
+        wasmBuffer1[i] = a.codePointAt(i);
+    }
+
+    var newStringLen = convertWASM(wasmBuffer1.byteOffset, a.length, wasmBuffer2.byteOffset, 1024, 0);
+
+    var newStr = "";
+    for (var i = 0; i < newStringLen; i++) {
+        newStr += String.fromCodePoint(wasmBuffer2[i]);
+    }
+
+    $("#conv1").val(newStr);
+    $("#conv2").val(strToCodePoints(newStr));
+
+}
 
 function compareLocal()
 {
@@ -142,6 +164,7 @@ function start() {
 
         var stripped = stripDiacriticsLocal(this.value);
         $("#codes2").val(stripped);
+        convertLocal();
 
         $("#codes3").val( strToCodePoints(stripped) );
     }); 
@@ -318,6 +341,9 @@ function handleKey(evt) {
     <input type="radio" name="stripMode" value="0">keep non-Greek
     <input class="gkinputcodes" type="text" id="codes2"/>
     <input class="gkinputcodes" type="text" id="codes3"/>
+    <br>Convert<br>
+    <input class="gkinputcodes" type="text" id="conv1"/>
+    <input class="gkinputcodes" type="text" id="conv2"/>
 
     <br><br>
     <button id="compareButton">compare</button>
