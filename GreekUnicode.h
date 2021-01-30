@@ -184,7 +184,7 @@
 
 #define GREEK_RHO_WITH_STROKE_SYMBOL                         0x03FC // ϼ • used with abbreviations containing 03C1 ρ
 #define GREEK_CAPITAL_REVERSED_LUNATE_SIGMA_SYMBOL             0x03FD // Ͻ = antisigma
-#define GREEK_CAPITAL_DOTTED_LUNATE SIGMA_SYMBOL              0x03FE // Ͼ = sigma periestigmenon
+#define GREEK_CAPITAL_DOTTED_LUNATE_SIGMA_SYMBOL              0x03FE // Ͼ = sigma periestigmenon
 #define GREEK_CAPITAL_REVERSED_DOTTED_LUNATE_SIGMA_SYMBOL    0x03FF // Ͽ = antisigma periestigmenon
 
 /* EXTENDED GREEK 1F00-1FFF */

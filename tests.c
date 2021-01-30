@@ -115,6 +115,21 @@ int main(int argc, char **argv)
    	buf[0] = GREEK_SMALL_LETTER_DIGAMMA;
    	buf[1] = GREEK_SMALL_LETTER_ZETA;
    	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, _HK_COMP_INSENSITIVE) == -1 );
+
+
+   	buf[0] = GREEK_SMALL_LETTER_PI;
+   	buf[1] = GREEK_SMALL_LETTER_SAN;
+   	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, _HK_COMP_INSENSITIVE) == -1 );
+
+   	buf[0] = GREEK_SMALL_LETTER_SAN;
+   	buf[1] = GREEK_SMALL_LETTER_KOPPA;
+   	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, _HK_COMP_INSENSITIVE) == -1 );
+
+   	buf[0] = GREEK_SMALL_LETTER_KOPPA;
+   	buf[1] = GREEK_SMALL_LETTER_RHO;
+   	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, _HK_COMP_INSENSITIVE) == -1 );
+
+
 	    
 	//α == α
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
