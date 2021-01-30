@@ -12,6 +12,24 @@ int main(int argc, char **argv)
    	int bufferLen2 = 0;
    	int bufferCapacity = 1024;
    	UCS2 buf2[1024];
+
+
+   	//this tests buffer capacity check.  
+   	//here we convert only 2 rather than 3 characters because 
+   	//buffer capacity is 2 + MAX_COMBINING (6) = 8
+    buf[0] = GREEK_SMALL_LETTER_BETA;
+   	buf[1] = GREEK_SMALL_LETTER_ALPHA;
+   	buf[2] = COMBINING_SMOOTH_BREATHING;
+   	buf[3] = COMBINING_ACUTE;
+   	buf[4] = COMBINING_IOTA_SUBSCRIPT;
+   	buf[5] = GREEK_SMALL_LETTER_GAMMA;
+   	len = 6;
+   	bufferLen2 = 0;
+   	bufferLen2 = convertString((UCS2*)buf, len, (UCS2*)buf2, 8, PRECOMPOSED_MODE);
+   	assert (bufferLen2 == 2);
+   	assert (memcmp(buf2, (UCS2[]){GREEK_SMALL_LETTER_BETA, GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_OXIA_AND_YPOGEGRAMMENI}, 2 * sizeof(UCS2) ) == 0);
+
+
   
     buf[0] = GREEK_SMALL_LETTER_BETA;
    	buf[1] = GREEK_SMALL_LETTER_ALPHA;
