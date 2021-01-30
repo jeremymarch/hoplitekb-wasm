@@ -21,7 +21,7 @@ int main(int argc, char **argv)
    	buf[5] = GREEK_SMALL_LETTER_GAMMA;
    	len = 6;
    	bufferLen2 = 0;
-   	convertString((UCS2*)buf, len, (UCS2*)buf2, &bufferLen2, bufferCapacity, PRECOMPOSED_MODE);
+   	bufferLen2 = convertString((UCS2*)buf, len, (UCS2*)buf2, bufferCapacity, PRECOMPOSED_MODE);
    	assert (bufferLen2 == 3);
    	assert (memcmp(buf2, (UCS2[]){GREEK_SMALL_LETTER_BETA, GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_OXIA_AND_YPOGEGRAMMENI, GREEK_SMALL_LETTER_GAMMA}, 3 * sizeof(UCS2) ) == 0);
 
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
    	buf[3] = COMBINING_ACUTE;
    	buf[4] = COMBINING_IOTA_SUBSCRIPT;
    	len = 5;
-   	convertString((UCS2*)buf, len, buf2, &bufferLen2, bufferCapacity, PRECOMPOSED_WITH_PUA_MODE);
+   	bufferLen2 = convertString((UCS2*)buf, len, buf2, bufferCapacity, PRECOMPOSED_WITH_PUA_MODE);
    	assert (bufferLen2 == 2);
    	assert (memcmp(buf2, (UCS2[]){PUA_GREEK_SMALL_LETTER_ALPHA_WITH_PSILI_AND_OXIA_AND_MACRON,COMBINING_IOTA_SUBSCRIPT}, 2*sizeof(UCS2) ) == 0);
 
@@ -42,7 +42,7 @@ int main(int argc, char **argv)
    	buf[1] = COMBINING_IOTA_SUBSCRIPT;
    	len = 2;
    	bufferLen2 = 0;
-   	convertString((UCS2*)buf, len, (UCS2*)buf2, &bufferLen2, bufferCapacity, COMBINING_ONLY_MODE);
+   	bufferLen2 = convertString((UCS2*)buf, len, (UCS2*)buf2, bufferCapacity, COMBINING_ONLY_MODE);
    	//printf("len: %d, %02X %02X\n", bufferLen2, buf2[0], buf2[1]);
    	assert (bufferLen2 == 5);
    	assert (memcmp(buf2, (UCS2[]){GREEK_SMALL_LETTER_ALPHA, COMBINING_MACRON,COMBINING_SMOOTH_BREATHING,COMBINING_ACUTE,COMBINING_IOTA_SUBSCRIPT}, 5*sizeof(UCS2) ) == 0);
@@ -53,7 +53,7 @@ int main(int argc, char **argv)
    	buf[3] = GREEK_SMALL_LETTER_GAMMA;
    	len = 4;
    	bufferLen2 = 0;
-   	convertString((UCS2*)buf, len, (UCS2*)buf2, &bufferLen2, bufferCapacity, COMBINING_ONLY_MODE);
+   	bufferLen2 = convertString((UCS2*)buf, len, (UCS2*)buf2, bufferCapacity, COMBINING_ONLY_MODE);
    	//printf("len: %d, %02X %02X\n", bufferLen2, buf2[0], buf2[1]);
    	assert (bufferLen2 == 7);
    	assert (memcmp(buf2, (UCS2[]){GREEK_SMALL_LETTER_BETA,GREEK_SMALL_LETTER_ALPHA, COMBINING_MACRON,COMBINING_SMOOTH_BREATHING,COMBINING_ACUTE,COMBINING_IOTA_SUBSCRIPT,GREEK_SMALL_LETTER_GAMMA}, 7*sizeof(UCS2) ) == 0);
