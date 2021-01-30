@@ -138,7 +138,7 @@ function compareLocal()
     var b2 = decoder.decode(wasmBuffer2.slice(bE.length));
     */
     console.log("compare: " + a + ", " + b + ": " + x);
-    $("#res").html(x);
+    $("#compareResult").html(x);
 }
 
 function test()
@@ -307,8 +307,17 @@ function handleKey(evt) {
   src: url('/newathu5.ttf') format('truetype');
 }
 body { 
-    margin:0px;padding:0px;background-color:#BBB;
+    margin:0px;padding:0px;background-color:#BBB;color:black;font-family: helvetica,arial;
 }
+#compareResult { color:black; }
+@media (prefers-color-scheme: dark) {
+    body {
+        background-color:#202124;
+        color:white;
+    }
+    #compareResult { color:white; }
+}
+
 #container {
     margin:10px auto;width:90%;
 }
@@ -328,6 +337,12 @@ body {
     font-size: 20pt;
     border-radius: 6px;
     border: 2px solid #666;
+    margin:6px 0px;
+
+}
+
+.gkinput:focus, .gkinputcodes:focus, .gkinputnontyping:focus{
+    outline:2px solid blue;
 }
 </style>
 </head>
@@ -342,11 +357,12 @@ body {
 
 	<input class="gkinput" type="text" id="inp"/>
     <input class="gkinputcodes" type="text" id="codes"/>
-
+    <br><br>
     <br>Strip diacritics: <input type="radio" checked name="stripMode" value="1">strip non-Greek
     <input type="radio" name="stripMode" value="0">keep non-Greek
     <input class="gkinputnontyping" type="text" id="codes2"/>
     <input class="gkinputcodes" type="text" id="codes3"/>
+    <br><br>
     <br>Convert:  
     <input type="radio" name="convertMode" value="0">Precomposed
     <input type="radio" name="convertMode" value="1">Precomposed with PUA
@@ -354,8 +370,8 @@ body {
     <input class="gkinputnontyping" type="text" id="conv1"/>
     <input class="gkinputcodes" type="text" id="conv2"/>
 
-    <br><br>
-    <button id="compareButton">compare</button> <span id="res"></span><br>
+    <br><br><br>
+    <button id="compareButton">compare</button> <span id="compareResult"></span><br>
     <input class="gkinput" type="text" id="comp1"/><br>
     <input class="gkinput" type="text" id="comp2"/><br>
     </div>

@@ -108,6 +108,13 @@ int main(int argc, char **argv)
     int x = accentSyllable2((UCS2*)&buf, 1, ACUTE, true, PRECOMPOSED_WITH_PUA_MODE);
 	printf("letter2: %04x %d\n", buf[0], x);
 */
+   	buf[0] = GREEK_SMALL_LETTER_EPSILON;
+   	buf[1] = GREEK_SMALL_LETTER_DIGAMMA;
+   	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, _HK_COMP_INSENSITIVE) == -1 );
+
+   	buf[0] = GREEK_SMALL_LETTER_DIGAMMA;
+   	buf[1] = GREEK_SMALL_LETTER_ZETA;
+   	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, _HK_COMP_INSENSITIVE) == -1 );
 	    
 	//α == α
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
