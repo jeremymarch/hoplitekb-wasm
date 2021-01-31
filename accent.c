@@ -1453,7 +1453,7 @@ size_t analyzeLetter(UCS2 *ucs2String, int len, UCS2 *letter, unsigned int *diac
 /*
 ucs2String must have at least NUM_COMBINING_ACCENTS + 1 slots to grow
 */
-void makeLetterCombining(UCS2 *ucs2String, int *letterLen, UCS2 letter, unsigned int diacritics)
+void makeLetterCombining(UCS2 *ucs2String, size_t *letterLen, UCS2 letter, unsigned int diacritics)
 {
     *letterLen = 0;
     ucs2String[(*letterLen)++] = letter; //set base letter
@@ -1527,7 +1527,7 @@ void makeLetterCombining(UCS2 *ucs2String, int *letterLen, UCS2 letter, unsigned
     }*/
 }
 
-bool makeLetter(UCS2 *ucs2String, int *newLetterLen, UCS2 letter, unsigned int diacritics, int unicodeMode)
+bool makeLetter(UCS2 *ucs2String, size_t *newLetterLen, UCS2 letter, unsigned int diacritics, int unicodeMode)
 {
     //Use PUA, - almost all precomposing except alpha macron, breathing, accent, iota_sub, if iota_sub use combining
     //Use both, if macron use combining
@@ -1793,16 +1793,16 @@ int convert(char *utf8, UCS2 *ucs2String, int len, int unicodemode)
 }
 */
 
-int convertString(UCS2 *str, int len, UCS2 *buffer, int bufferCapacity, int unicodeMode)
+int convertString(UCS2 *str, size_t len, UCS2 *buffer, size_t bufferCapacity, int unicodeMode)
 {
     UCS2 baseLetter = 0;
     unsigned int diacritics = 0;
     UCS2 type = 0;
 
-    int bufferLen = 0;
+    size_t bufferLen = 0;
     UCS2 *b2 = buffer;
     size_t i = 0;
-    int tempBLen = 0;
+    size_t tempBLen = 0;
 
     for ( ; i < len && bufferLen + MAX_COMBINING < bufferCapacity; ) {
         size_t letterLen = analyzeLetter(&str[i], len - i, &baseLetter, &diacritics, &type);
@@ -1961,7 +1961,7 @@ void accentSyllable(UCS2 *ucs2String, int *len, int accentToAdd, bool toggleOff,
 
     //4. this creates the new letter, either with combining or precomposed accents
     UCS2 buffer[MAX_COMBINING]; //this is letter plus max combining
-    int newLetterLen = 0;
+    size_t newLetterLen = 0;
 
     if (!makeLetter(buffer, &newLetterLen, baseLetter, diacritics, unicodeMode))
         return;

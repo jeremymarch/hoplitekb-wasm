@@ -172,7 +172,8 @@ function strToCodePoints(str)
 
 function start() {
 	$(".gkinput").keypress(handleKey);
-
+    //$(".gkinput").unbind("keypress");
+    
     $("#inp").keyup(function(){
         
         $("#codes").val( strToCodePoints(this.value) );

@@ -1,3 +1,3 @@
 #!/bin/bash
-gcc -std=c99 -pedantic -Oz -Wall -otests utilities.c accent.c tests.c 
+gcc -std=c99 -pedantic -Oz -Wextra -otests utilities.c accent.c tests.c 
 ./tests

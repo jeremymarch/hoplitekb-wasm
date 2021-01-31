@@ -232,7 +232,7 @@ int ucs2_to_utf8_string(UCS2 *ucs2, size_t len, unsigned char *utf8)
         return 1;
     }
     
-    for (int i = 0; i < len; i++)
+    for (size_t i = 0; i < len; i++)
     {
         int utf8Len;
         utf8Len = ucs2_to_utf8(ucs2[i], utf8Temp);
@@ -252,7 +252,7 @@ void utf8_to_ucs2_string2(const char *utf8, size_t utf8Len, UCS2 *ucs2, size_t *
     int temp; //because UCS2 is unsigned.
     *len = 0;
     
-    for( int i = 0; i < utf8Len ; i++)
+    for( size_t i = 0; i < utf8Len ; i++)
     {
         temp = utf8_to_ucs2 ((const unsigned char *)utf8, (const unsigned char **)&utf8);
         if (temp == -1)

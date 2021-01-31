@@ -72,7 +72,7 @@ int scanLetter(UCS2 *ucs2String, int i, int len, UCS2 *letterCode, int *accentBi
 size_t analyzeLetter(UCS2 *ucs2String, int len, UCS2 *letter, unsigned int *diacritics, UCS2 *type);
 int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *a);
 
-bool makeLetter(UCS2 *ucs2String, int *newLetterLen, UCS2 letterCode, unsigned int accentBitMask, int unicodeMode);
+bool makeLetter(UCS2 *ucs2String, size_t *newLetterLen, UCS2 letterCode, unsigned int accentBitMask, int unicodeMode);
 
 bool isCombiningDiacritic(UCS2 l);
 
@@ -80,6 +80,6 @@ int compareSort(int len_a, const unsigned char *a, int len_b, const unsigned cha
 int hccontainsPUA(const unsigned char *utf8);
 int hcucHex(const unsigned char *utf8, int bufferLen, char *buffer);
 
-int convertString(UCS2 *str, int len, UCS2 *buffer, int bufferCapacity, int unicodeMode);
+int convertString(UCS2 *str, size_t len, UCS2 *buffer, size_t bufferCapacity, int unicodeMode);
 
 #endif /* accent_h */
