@@ -18,7 +18,7 @@
 typedef unsigned short UCS2;
 //typedef uint16_t UCS2;
 
-bool ucsplice(UCS2 *string, size_t *len, size_t bufferCapacity, size_t offset, size_t replacing, UCS2 *insert, size_t insert_len);
+bool ucsplice(UCS2 *string, size_t *len, size_t buffer_capacity, size_t offset, size_t replacing, UCS2 *insert, size_t insert_len);
 
 int ucs2_to_utf8 (UCS2 ucs2, unsigned char * utf8);
 UCS2 utf8_to_ucs2 (const unsigned char * input, const unsigned char ** end_ptr);

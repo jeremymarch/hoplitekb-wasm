@@ -24,7 +24,7 @@ void debug_msg(const char *x) {
 #define DEBUG_SPLICE(X) 
 #endif
 
-bool rightShiftFromOffsetSteps(UCS2 *ucs2, size_t offset, size_t steps, size_t *len, size_t buffer_capacity)
+bool rightShiftFromOffsetSteps(UCS2 *ucs2, int offset, size_t steps, size_t *len, size_t buffer_capacity)
 {
     if (*len + steps > buffer_capacity)
     {
@@ -37,7 +37,7 @@ bool rightShiftFromOffsetSteps(UCS2 *ucs2, size_t offset, size_t steps, size_t *
         return false;
     }
     
-    for (size_t j = *len ; j >= offset; j--)
+    for (int j = *len ; j >= offset; j--)
     {
         //printf("j: %d\n", j);
         ucs2[j + steps] = ucs2[j];
