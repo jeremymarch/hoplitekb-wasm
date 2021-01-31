@@ -8,9 +8,9 @@
 int main(int argc, char **argv)
 {
 	UCS2 buf[1024];
-	int len = 0;
-   	int bufferLen2 = 0;
-   	int bufferCapacity = 1024;
+	size_t len = 0;
+   	size_t bufferLen2 = 0;
+   	size_t bufferCapacity = 1024;
    	UCS2 buf2[1024];
 
 

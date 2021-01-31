@@ -13,17 +13,18 @@
 #define UNICODE_SURROGATE_PAIR    -1
 #define UNICODE_BAD_INPUT         -2
 
+#ifndef __EMSCRIPTEN__
 #define DEBUG_SPLICE(X) debug_msg(X)
 
-void debug_msg(const char *x)
-{
-    #ifndef __EMSCRIPTEN__
+void debug_msg(const char *x) {
     fprintf(stderr, "%s\n", x);
     //exit(1);
-    #endif
 }
+#else
+#define DEBUG_SPLICE(X) 
+#endif
 
-bool rightShiftFromOffsetSteps(UCS2 *ucs2, int offset, int steps, int *len, int buffer_capacity)
+bool rightShiftFromOffsetSteps(UCS2 *ucs2, size_t offset, size_t steps, size_t *len, size_t buffer_capacity)
 {
     if (*len + steps > buffer_capacity)
     {
@@ -36,7 +37,7 @@ bool rightShiftFromOffsetSteps(UCS2 *ucs2, int offset, int steps, int *len, int 
         return false;
     }
     
-    for (int j = *len ; j >= offset; j--)
+    for (size_t j = *len ; j >= offset; j--)
     {
         //printf("j: %d\n", j);
         ucs2[j + steps] = ucs2[j];
@@ -47,7 +48,7 @@ bool rightShiftFromOffsetSteps(UCS2 *ucs2, int offset, int steps, int *len, int 
 }
 
 //Moves everything over to the left, eating the char at the offset index
-bool leftShiftFromOffsetSteps(UCS2 *ucs2, int offset, int steps, int *len)
+bool leftShiftFromOffsetSteps(UCS2 *ucs2, size_t offset, size_t steps, size_t *len)
 {
     if (offset < 0)
     {
@@ -59,7 +60,7 @@ bool leftShiftFromOffsetSteps(UCS2 *ucs2, int offset, int steps, int *len)
         DEBUG_SPLICE("out of bounds!");
         return false;
     }
-    int j = offset;
+    size_t j = offset;
     for ( ; j < *len - 1; j++)
     {
         ucs2[j] = ucs2[j + steps];
@@ -81,7 +82,7 @@ bool leftShiftFromOffsetSteps(UCS2 *ucs2, int offset, int steps, int *len)
  *
  * returns true, or false if error
  */
-bool ucsplice(UCS2 *string, int *len, int buffer_capacity, int offset, int replacing, UCS2 *insert, int insert_len)
+bool ucsplice(UCS2 *string, size_t *len, size_t buffer_capacity, size_t offset, size_t replacing, UCS2 *insert, size_t insert_len)
 {
     if (*len + insert_len - replacing > buffer_capacity)
     {
@@ -130,7 +131,7 @@ bool ucsplice(UCS2 *string, int *len, int buffer_capacity, int offset, int repla
             return false;
         }
     }
-    for (int i = 0; i < insert_len; i++)
+    for (size_t i = 0; i < insert_len; i++)
     {
         string[offset + i] = insert[i];
     }

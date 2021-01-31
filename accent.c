@@ -895,7 +895,7 @@ bool analyzePrecomposedLetterOLD(UCS2 letter, int *l, int *a)
 int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *diacritics)
 {
     //*diacritics: do not initialize it, its value is being added to here
-    int offset = 0;
+    size_t offset = 0;
     UCS2 returnChar = 0; //will be NOCHAR, NOT_ACCENTABLE_CHAR, or the base vowel if ACCENTABLE_CHAR
     if (letterToAnalyze >= 0x0370 && letterToAnalyze <= 0x03FF)
     {
@@ -970,7 +970,7 @@ int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *diacri
 //return 0 for invalid letter
 UCS2 getPrecomposedLetter(int letterIndex, int diacriticMask)
 {
-    int accentIndex = 0;
+    size_t accentIndex = 0;
     
     switch (diacriticMask)
     {
@@ -1659,7 +1659,7 @@ UCS2 getSpacingDiacritic(int diacritic)
 
 //wasm / emscripten / webassembly
 //emcc -std=gnu99 -Oz -s STANDALONE_WASM -s EXPORTED_FUNCTIONS="['_accentSyllable2','_stripDiacritics']" -Wl,--no-entry "utilities.c" "accent.c" -o "hoplitekb.wasm"
-int accentSyllable2(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, int unicodeMode)
+int accentSyllable2(UCS2 *ucs2String, size_t len, int accentToAdd, int toggleOff, int unicodeMode)
 {
     accentSyllable(ucs2String, &len, accentToAdd, toggleOff, unicodeMode);
     return len;
@@ -1828,7 +1828,7 @@ void accentContext(UCS2 *str, int *len, int cursorPos)
 */
 
 //there should be room for a least MAX_COMBINING more characters at the end of ucs2String, in case it needs to grow
-void accentSyllable(UCS2 *ucs2String, int *len, int accentToAdd, bool toggleOff, int unicodeMode)
+void accentSyllable(UCS2 *ucs2String, size_t *len, int accentToAdd, bool toggleOff, int unicodeMode)
 {
     /* remove?
     if (accentToAdd == UNDERDOT)
