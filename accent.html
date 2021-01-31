@@ -113,7 +113,20 @@ function convertLocal()
     $("#conv2").val(strToCodePoints(newStr));
 
 }
+var _MACRON     = 1;
+var _SMOOTH     = 2;
+var _ROUGH      = 4;
+var _ACUTE      = 8;
+var _GRAVE      = 16;
+var _CIRCUMFLEX = 32;
+var _IOTA_SUB   = 64;
+var _DIAERESIS  = 128;
+var _BREVE      = 256;
+var _UNDERDOT   = 512;
+var _CASE_SENSITIVE = 1024; //, not used yet
+var _HK_IGNORE_UNKNOWN_CHARS = 2048;
 
+var compareType = (_GRAVE | _ACUTE | _CIRCUMFLEX | _UNDERDOT);
 function compareLocal()
 {
     var a = $("#comp1").val();
@@ -131,7 +144,7 @@ function compareLocal()
     for (var i = 0; i < b.length; i++) {
         wasmBuffer2[i] = b.codePointAt(i);
     }
-    var x = compareWASM(wasmBuffer1.byteOffset, a.length, wasmBuffer2.byteOffset, b.length, 0);
+    var x = compareWASM(wasmBuffer1.byteOffset, a.length, wasmBuffer2.byteOffset, b.length, compareType);
     /*
     var decoder = new TextDecoder("utf-16");
     var a2 = decoder.decode(wasmBuffer1.slice(aE.length));

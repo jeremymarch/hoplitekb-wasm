@@ -33,19 +33,19 @@ enum {
 
 //diacriticMask bit flags
 enum {
-    _MACRON     = 1 << 0,
-    _SMOOTH     = 1 << 1,
-    _ROUGH      = 1 << 2,
-    _ACUTE      = 1 << 3,
-    _GRAVE      = 1 << 4,
-    _CIRCUMFLEX = 1 << 5,
-    _IOTA_SUB   = 1 << 6,
-    _DIAERESIS  = 1 << 7,
-    _BREVE      = 1 << 8,
-    _UNDERDOT   = 1 << 9,
+    _MACRON     = 1 << 0, //1
+    _SMOOTH     = 1 << 1, //2
+    _ROUGH      = 1 << 2, //4
+    _ACUTE      = 1 << 3, //8
+    _GRAVE      = 1 << 4, //16
+    _CIRCUMFLEX = 1 << 5, //32
+    _IOTA_SUB   = 1 << 6, //64
+    _DIAERESIS  = 1 << 7, //128
+    _BREVE      = 1 << 8, //256
+    _UNDERDOT   = 1 << 9, //512
 
-    _CASE_SENSITIVE = 1 << 10,
-    _HK_IGNORE_UNKNOWN_CHARS = 1 << 11
+    _CASE_SENSITIVE = 1 << 10, //1024, not used yet
+    _HK_IGNORE_UNKNOWN_CHARS = 1 << 11 //2048
 };
 
 #define _HK_COMP_INSENSITIVE _MACRON|_SMOOTH|_ROUGH|_ACUTE|_GRAVE|_CIRCUMFLEX|_IOTA_SUB|_DIAERESIS|_BREVE|_UNDERDOT
