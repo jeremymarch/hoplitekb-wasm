@@ -184,7 +184,7 @@ int main(int argc, char **argv)
    	//α == ά
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
    	buf[1] = GREEK_SMALL_LETTER_ALPHA_WITH_TONOS;
-   	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, _HK_COMP_DIA_SENSITIVE) == 1);
+   	assert( compare((UCS2*)&buf[0], 1, (UCS2*)&buf[1], 1, _HK_COMP_DIA_SENSITIVE) == -1);
 
    	//α + COMBINING_ACUTE == ά
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
@@ -197,7 +197,7 @@ int main(int argc, char **argv)
    	buf[1] = COMBINING_ACUTE;
    	buf[2] = GREEK_SMALL_LETTER_ALPHA;
    	buf[3] = COMBINING_GRAVE;
-   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_DIA_SENSITIVE) == 1);
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_DIA_SENSITIVE) == -1);
 
    	//α + COMBINING_ACUTE == combining grave insensitive
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
@@ -232,7 +232,7 @@ int main(int argc, char **argv)
    	buf[4] = COMBINING_ROUGH_BREATHING;
    	buf[5] = COMBINING_GRAVE;
    	buf[6] = COMBINING_IOTA_SUBSCRIPT;
-   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 5, _HK_COMP_DIA_SENSITIVE) == 1);
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 5, _HK_COMP_DIA_SENSITIVE) == -1);
 
    	//PUA and combining insensitive
    	buf[0] = 0xEB09;
@@ -261,7 +261,7 @@ int main(int argc, char **argv)
 
    	buf[3] = GREEK_SMALL_LETTER_ALPHA;
    	buf[4] = GREEK_SMALL_LETTER_BETA;
-   	assert( compare((UCS2*)&buf[0], 3, (UCS2*)&buf[3], 2, _HK_COMP_DIA_SENSITIVE) == 1);
+   	assert( compare((UCS2*)&buf[0], 3, (UCS2*)&buf[3], 2, _HK_COMP_DIA_SENSITIVE) == -1);
 
    	//non-greek greater than basic greek range.
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
@@ -269,7 +269,7 @@ int main(int argc, char **argv)
 
    	buf[2] = GREEK_SMALL_LETTER_ALPHA;
    	buf[3] = 0x0400;
-   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_DIA_SENSITIVE) == 1);
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_DIA_SENSITIVE) == 0);
 
    	//non-greek greater than basic greek range.
    	buf[0] = GREEK_SMALL_LETTER_OMEGA;
@@ -302,13 +302,13 @@ int main(int argc, char **argv)
    	buf[1] = GREEK_SMALL_LETTER_BETA;
    	buf[2] = 0x0030;
    	buf[3] = GREEK_SMALL_LETTER_ALPHA;
-   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_INSENSITIVE) == 1 );
+   	assert( compare((UCS2*)&buf[0], 2, (UCS2*)&buf[2], 2, _HK_COMP_INSENSITIVE) == 0 );
 
    	assert( compareUTF8("α", "αβ", _HK_COMP_DIA_SENSITIVE) == -1);
    	assert( compareUTF8("β", "α", _HK_COMP_DIA_SENSITIVE) == 1);
    	assert( compareUTF8("αβ", "α", _HK_COMP_DIA_SENSITIVE) == 1);
    	assert( compareUTF8("α", "αβ", _HK_COMP_DIA_SENSITIVE) == -1);
-   	assert( compareUTF8("ω", "ὤ", _HK_COMP_DIA_SENSITIVE) == 1);
+   	assert( compareUTF8("ω", "ὤ", _HK_COMP_DIA_SENSITIVE) == -1);
    	assert( compareUTF8("ω", "ὤ", _HK_COMP_INSENSITIVE) == 0);
 
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;

@@ -1719,9 +1719,17 @@ int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
             i1 += l1;
             i2 += l2;
         }
-        if (temp1 < 0x0370 || temp1 > 0x03FF || temp2 < 0x0370 || temp2 > 0x03FF) //non-greek = not equal
+        if ((temp1 < 0x0370 || temp1 > 0x03FF) && (temp2 < 0x0370 || temp2 > 0x03FF))
         {
-            return 1; //we do not care about sort order for this, for now: just return 1.
+            return (temp1 < temp2) ? -1 : (temp1 > temp2) ? 1 : 0; //needed to make it deterministic for sqlite
+        }
+        else if (temp1 < 0x0370 || temp1 > 0x03FF) //non-greek sorts before greek
+        {
+            return -1;
+        }
+        else if (temp2 < 0x0370 || temp2 > 0x03FF) //non-greek sorts before greek
+        {
+            return 1;
         }
 
         if (basicGreekLookUp[temp1 - 0x0370][2] < basicGreekLookUp[temp2 - 0x0370][2])
@@ -1735,7 +1743,7 @@ int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
 
         if ( (diacritics1 & ~compareType) != (diacritics2 & ~compareType) )
         {
-            return 1; //we do not care about sort order for this, for now: just return 1.
+            return ((diacritics1 & ~compareType) < (diacritics2 & ~compareType)) ? -1 : 1;
         }
     }
 
