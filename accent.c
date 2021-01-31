@@ -1692,8 +1692,8 @@ int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
 {
     size_t i1 = 0;
     size_t i2 = 0;
-    UCS2 temp1 = 0;
-    UCS2 temp2 = 0;
+    UCS2 letter1 = 0;
+    UCS2 letter2 = 0;
     unsigned int diacritics1 = 0;
     unsigned int diacritics2 = 0;
     UCS2 type1 = 0;
@@ -1701,8 +1701,8 @@ int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
 
     while (i1 < len1 && i2 < len2)
     {
-        size_t l1 = analyzeLetter(&s1[i1], len1 - i1, &temp1, &diacritics1, &type1);
-        size_t l2 = analyzeLetter(&s2[i2], len2 - i2, &temp2, &diacritics2, &type2);
+        size_t l1 = analyzeLetter(&s1[i1], len1 - i1, &letter1, &diacritics1, &type1);
+        size_t l2 = analyzeLetter(&s2[i2], len2 - i2, &letter2, &diacritics2, &type2);
 
         if ((compareType & _HK_IGNORE_UNKNOWN_CHARS) == _HK_IGNORE_UNKNOWN_CHARS && type1 == NOCHAR)
         {
@@ -1719,24 +1719,25 @@ int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
             i1 += l1;
             i2 += l2;
         }
-        if ((temp1 < 0x0370 || temp1 > 0x03FF) && (temp2 < 0x0370 || temp2 > 0x03FF))
+
+        if ((letter1 < 0x0370 || letter1 > 0x03FF) && (letter2 < 0x0370 || letter2 > 0x03FF))
         {
-            return (temp1 < temp2) ? -1 : (temp1 > temp2) ? 1 : 0; //needed to make it deterministic for sqlite
+            return (letter1 < letter2) ? -1 : (letter1 > letter2) ? 1 : 0; //to make it deterministic for sqlite
         }
-        else if (temp1 < 0x0370 || temp1 > 0x03FF) //non-greek sorts before greek
+        else if (letter1 < 0x0370 || letter1 > 0x03FF) //non-greek sorts before greek
         {
             return -1;
         }
-        else if (temp2 < 0x0370 || temp2 > 0x03FF) //non-greek sorts before greek
+        else if (letter2 < 0x0370 || letter2 > 0x03FF) //non-greek sorts before greek
         {
             return 1;
         }
 
-        if (basicGreekLookUp[temp1 - 0x0370][2] < basicGreekLookUp[temp2 - 0x0370][2])
+        if (basicGreekLookUp[letter1 - 0x0370][2] < basicGreekLookUp[letter2 - 0x0370][2])
         {
             return -1;
         }
-        else if (basicGreekLookUp[temp1 - 0x0370][2] > basicGreekLookUp[temp2 - 0x0370][2])
+        else if (basicGreekLookUp[letter1 - 0x0370][2] > basicGreekLookUp[letter2 - 0x0370][2])
         {
             return 1;
         }
@@ -1746,6 +1747,7 @@ int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
             return ((diacritics1 & ~compareType) < (diacritics2 & ~compareType)) ? -1 : 1;
         }
     }
+    //here we have reached the end of one or both strings and still completely equal
 
     if (i1 == len1 && i2 == len2) //both at end
     {
