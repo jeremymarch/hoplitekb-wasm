@@ -48,7 +48,7 @@ function stripDiacriticsLocal(origChars) {
     
     var len = origChars.length;
     //add letter and any combining diacritics to the buffer as code points
-    for (var i = 0; i < len; i++) {
+    for (var i = 0; i < len && i < 1024; i++) {
         wasmBuffer[i] = origChars.codePointAt(i);
     }
 
@@ -95,7 +95,7 @@ loadWebAssembly('hoplitekb.wasm')
 function convertLocal()
 {
     var a = $("#inp").val();
-    var bufferCapacity = 1024;
+    var bufferCapacity = 1000;
     for (var i = 0; i < a.length && i < bufferCapacity; i++) {
         wasmBuffer1[i] = a.codePointAt(i);
     }
@@ -173,7 +173,7 @@ function strToCodePoints(str)
 function start() {
 	$(".gkinput").keypress(handleKey);
     //$(".gkinput").unbind("keypress");
-    
+
     $("#inp").keyup(function(){
         
         $("#codes").val( strToCodePoints(this.value) );

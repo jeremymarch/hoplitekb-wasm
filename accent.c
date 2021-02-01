@@ -892,7 +892,7 @@ bool analyzePrecomposedLetterOLD(UCS2 letter, int *l, int *a)
  For ACCENTABLE_CHAR it puts the base vowel in *l and an accentBitMask in *a
  For NOT_ACCENTABLE_CHAR it puts the consonant in *l which will be the same as letterToAnalyze
  */
-int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *diacritics)
+int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, DiacriticBits *diacritics)
 {
     //*diacritics: do not initialize it, its value is being added to here
     size_t offset = 0;
@@ -968,7 +968,7 @@ int analyzePrecomposedLetter(UCS2 letterToAnalyze, UCS2 *l, unsigned int *diacri
 }
 
 //return 0 for invalid letter
-UCS2 getPrecomposedLetter(int letterIndex, int diacriticMask)
+UCS2 getPrecomposedLetter(int letterIndex, DiacriticBits diacriticMask)
 {
     size_t accentIndex = 0;
     
@@ -1302,7 +1302,7 @@ bool isLegalDiacriticForLetter(UCS2 letter, int accentToAdd)
 }
 
 //adjusts diacritics based on one being added
-unsigned int updateDiacritics(UCS2 letter, int accentToAdd, unsigned int diacritics, bool toggleOff)
+DiacriticBits updateDiacritics(UCS2 letter, int accentToAdd, DiacriticBits diacritics, bool toggleOff)
 {
     switch (accentToAdd)
     {
@@ -1392,7 +1392,7 @@ unsigned int updateDiacritics(UCS2 letter, int accentToAdd, unsigned int diacrit
  Returns the length of letter(1) + any combining diacritics up to MAX_COMBINING
  Passes bitfield back of diacritics found
  */
-int analyzeCombiningChars(UCS2 *cp, int len, unsigned int *diacritics)
+int analyzeCombiningChars(UCS2 *cp, int len, DiacriticBits *diacritics)
 {
     int letterLen = 1; //assume first character is a non-combining letter
     for ( ; letterLen <= MAX_COMBINING && letterLen < len; letterLen++)
@@ -1437,7 +1437,7 @@ int analyzeCombiningChars(UCS2 *cp, int len, unsigned int *diacritics)
 
 //passes back the letterCode and diacriticMask for this letter
 //returns the number of characters or -1, if not valid or unknown
-size_t analyzeLetter(UCS2 *ucs2String, int len, UCS2 *letter, unsigned int *diacritics, UCS2 *type)
+size_t analyzeLetter(UCS2 *ucs2String, size_t len, UCS2 *letter, DiacriticBits *diacritics, UCS2 *type)
 {
     *diacritics = 0; //start at nothing
     *letter = 0;
@@ -1453,7 +1453,7 @@ size_t analyzeLetter(UCS2 *ucs2String, int len, UCS2 *letter, unsigned int *diac
 /*
 ucs2String must have at least NUM_COMBINING_ACCENTS + 1 slots to grow
 */
-void makeLetterCombining(UCS2 *ucs2String, size_t *letterLen, UCS2 letter, unsigned int diacritics)
+void makeLetterCombining(UCS2 *ucs2String, size_t *letterLen, UCS2 letter, DiacriticBits diacritics)
 {
     *letterLen = 0;
     ucs2String[(*letterLen)++] = letter; //set base letter
@@ -1527,7 +1527,7 @@ void makeLetterCombining(UCS2 *ucs2String, size_t *letterLen, UCS2 letter, unsig
     }*/
 }
 
-bool makeLetter(UCS2 *ucs2String, size_t *newLetterLen, UCS2 letter, unsigned int diacritics, int unicodeMode)
+bool makeLetter(UCS2 *ucs2String, size_t *newLetterLen, UCS2 letter, DiacriticBits diacritics, int unicodeMode)
 {
     //Use PUA, - almost all precomposing except alpha macron, breathing, accent, iota_sub, if iota_sub use combining
     //Use both, if macron use combining
@@ -1694,8 +1694,8 @@ int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
     size_t i2 = 0;
     UCS2 letter1 = 0;
     UCS2 letter2 = 0;
-    unsigned int diacritics1 = 0;
-    unsigned int diacritics2 = 0;
+    DiacriticBits diacritics1 = 0;
+    DiacriticBits diacritics2 = 0;
     UCS2 type1 = 0;
     UCS2 type2 = 0;
 
@@ -1763,14 +1763,15 @@ int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType)
     }
 }
 
-int stripDiacritics(UCS2 *ucs2String, int len, int removeNonGreek)
+int stripDiacritics(UCS2 *ucs2String, size_t len, bool removeNonGreek)
 {
-    UCS2 tempChar, type;
+    UCS2 tempChar = 0;
+    UCS2 type = 0;
     UCS2 *p = ucs2String;
-    unsigned int diacritics;
-    int strEnd = 0;
+    DiacriticBits diacritics = 0;
+    size_t strEnd = 0;
     UCS2 *end = p + len;
-    int i = 0;
+    size_t i = 0;
     while ( p < end )
     {
         size_t letterLen = analyzeLetter(p, len - i, &tempChar, &diacritics, &type);
@@ -1796,7 +1797,7 @@ int convert(char *utf8, UCS2 *ucs2String, int len, int unicodemode)
 int convertString(UCS2 *str, size_t len, UCS2 *buffer, size_t bufferCapacity, int unicodeMode)
 {
     UCS2 baseLetter = 0;
-    unsigned int diacritics = 0;
+    DiacriticBits diacritics = 0;
     UCS2 type = 0;
 
     size_t bufferLen = 0;
@@ -1918,7 +1919,7 @@ void accentSyllable(UCS2 *ucs2String, size_t *len, int accentToAdd, bool toggleO
 
     //2. now analyze what is currently there
     UCS2 baseLetter = 0;
-    unsigned int diacritics = 0;
+    DiacriticBits diacritics = 0;
     
     //this will be -1 on error
     UCS2 type = 0;
