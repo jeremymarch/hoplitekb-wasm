@@ -51,9 +51,15 @@ loadWebAssembly('hoplitekb.wasm?v=7')
         compareWASM = exports.compare;
         var memory = exports.memory;
 
-        wasmBuffer = new Uint16Array(memory.buffer, 0, 1024);
-        wasmBuffer1 = new Uint16Array(memory.buffer, 1024, 1024);
-        wasmBuffer2 = new Uint16Array(memory.buffer, 2048, 1024);
+        //https://rob-blackbourn.github.io/blog/webassembly/wasm/array/arrays/javascript/c/2020/06/07/wasm-arrays.html
+        //offset is in bytes, length is in array elements
+        var offset = 0;
+        var length = 1024;
+        wasmBuffer = new Uint16Array(memory.buffer, offset, length);
+        offset += length * Uint16Array.BYTES_PER_ELEMENT;
+        wasmBuffer1 = new Uint16Array(memory.buffer, offset, length);
+        offset += length * Uint16Array.BYTES_PER_ELEMENT;
+        wasmBuffer2 = new Uint16Array(memory.buffer, offset, length);
         
         // now we are ready, set up the button so the user can run the code
         var button = document.getElementById('compareButton');
@@ -152,6 +158,12 @@ function strToCodePoints(str)
     return a.trim();
 }
 
+function doall(e) {
+    var a = handleKey.call(this, e);
+    //convertLocal.call(this, this.value);
+    return a;
+}
+
 function start() {
 	$(".gkinput").keypress(handleKey);
     //$(".gkinput").unbind("keypress");
@@ -161,8 +173,8 @@ function start() {
         $("#codes").val( strToCodePoints(this.value) );
         var stripped = stripDiacriticsLocal(this.value);
         $("#codes2").val(stripped);
-        $("#codes3").val( strToCodePoints(stripped) );
-        //convertLocal(this.value);
+        $("#codes3").val( strToCodePoints(stripped) );  
+        convertLocal(this.value); 
     }); 
     //$("#inp").on("change", function(){convertLocal()});
 }
@@ -190,6 +202,7 @@ function accentSyllable(origChars, key) {
 
 var unicodeMode = 0;
 function handleKey(e) {
+
     var val = this.value;
     e = e || event;
     if (typeof(this.selectionStart) == "number" && typeof(this.selectionEnd) == "number") 
