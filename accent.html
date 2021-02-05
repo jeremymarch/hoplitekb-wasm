@@ -42,6 +42,7 @@ var stripDiacritics2;
 var compareWASM;
 var convertWASM;
 
+var wasmBufferLength = 1024;
 loadWebAssembly('hoplitekb.wasm?v=7')
     .then(instance => {
         var exports = instance.exports;
@@ -54,12 +55,11 @@ loadWebAssembly('hoplitekb.wasm?v=7')
         //https://rob-blackbourn.github.io/blog/webassembly/wasm/array/arrays/javascript/c/2020/06/07/wasm-arrays.html
         //offset is in bytes, length is in array elements
         var offset = 0;
-        var length = 1024;
-        wasmBuffer = new Uint16Array(memory.buffer, offset, length);
-        offset += length * Uint16Array.BYTES_PER_ELEMENT;
-        wasmBuffer1 = new Uint16Array(memory.buffer, offset, length);
-        offset += length * Uint16Array.BYTES_PER_ELEMENT;
-        wasmBuffer2 = new Uint16Array(memory.buffer, offset, length);
+        wasmBuffer = new Uint16Array(memory.buffer, offset, wasmBufferLength);
+        offset += wasmBufferLength * Uint16Array.BYTES_PER_ELEMENT;
+        wasmBuffer1 = new Uint16Array(memory.buffer, offset, wasmBufferLength);
+        offset += wasmBufferLength * Uint16Array.BYTES_PER_ELEMENT;
+        wasmBuffer2 = new Uint16Array(memory.buffer, offset, wasmBufferLength);
         
         // now we are ready, set up the button so the user can run the code
         var button = document.getElementById('compareButton');
@@ -72,7 +72,7 @@ function stripDiacriticsLocal(origChars) {
     
     var len = origChars.length;
     //add letter and any combining diacritics to the buffer as code points
-    for (var i = 0; i < len && i < 1024; i++) {
+    for (var i = 0; i < len && i < wasmBufferLength; i++) {
         wasmBuffer2[i] = origChars.codePointAt(i);
     }
 
@@ -89,7 +89,7 @@ function stripDiacriticsLocal(origChars) {
 
 function convertLocal(a)
 {
-    var bufferCapacity = 1000;
+    var bufferCapacity = wasmBufferLength - 24;
     for (var i = 0; i < a.length && i < bufferCapacity; i++) {
         wasmBuffer1[i] = a.codePointAt(i);
     }
@@ -133,10 +133,10 @@ function compareLocal()
     wasmBuffer1.set(aE);
     wasmBuffer2.set(bE);
     */
-    for (var i = 0; i < a.length; i++) {
+    for (var i = 0; i < a.length && i < wasmBufferLength; i++) {
         wasmBuffer1[i] = a.codePointAt(i);
     }
-    for (var i = 0; i < b.length; i++) {
+    for (var i = 0; i < b.length && i < wasmBufferLength; i++) {
         wasmBuffer2[i] = b.codePointAt(i);
     }
     var x = compareWASM(wasmBuffer1.byteOffset, a.length, wasmBuffer2.byteOffset, b.length, compareType);
@@ -184,7 +184,7 @@ var forceLowercase = true;
 function accentSyllable(origChars, key) {
     var len = origChars.length;
     //add letter and any combining diacritics to the buffer as code points
-    for (var i = 0; i < len; i++) {
+    for (var i = 0; i < len && i < wasmBufferLength; i++) {
         wasmBuffer[i] = origChars.codePointAt(i);
     }
 
@@ -192,7 +192,7 @@ function accentSyllable(origChars, key) {
 
     //transform the returned code points back to a string
     var newLetter = "";
-    for (var i = 0; i < len; i++) {
+    for (var i = 0; i < len && i < wasmBufferLength; i++) {
         newLetter += String.fromCodePoint(wasmBuffer[i]);
     }
 
@@ -248,8 +248,12 @@ function handleKey(e) {
             this.selectionStart = this.selectionEnd = (start - replacing) + newLetter.length;
             return false;
         }
+        else if (charCode && ((charCode > 47 && charCode < 58) || (charCode > 64 && charCode < 123)))
+        {
+            return false; //this prevents numbers from being possible at very start of text field
+        }
     }    
-    return true;
+    return true; //this allows most punctuation to pass through
 }
 
 </script>
