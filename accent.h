@@ -63,9 +63,9 @@ enum {
 
 void allowSpacingDiacritics(bool val);
 
-void accentSyllable(UCS2 *ucs2String, size_t *len, int accentToAdd, bool toggleOff, int unicodeMode);
+void accentSyllable(UCS2 *ucs2String, size_t *len, UCS2 accentToAdd, bool toggleOff, int unicodeMode);
 char *accentSyllableUtf8(char *utf8, int accent);
-int accentSyllable2(UCS2 *ucs2String, size_t len, int accentToAdd, int toggleOff, int unicodeMode);
+int accentSyllable2(UCS2 *ucs2String, size_t len, UCS2 accentToAdd, int toggleOff, int unicodeMode);
 //int accentSyllable3(UCS2 *ucs2String, int len, int accentToAdd, int toggleOff, int unicodeMode);
 int stripDiacritics(UCS2 *ucs2String, size_t len, bool removeNonGreek);
 int compare(UCS2 *s1, size_t len1, UCS2 *s2, size_t len2, int compareType);

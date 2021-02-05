@@ -311,6 +311,15 @@ int main(int argc, char **argv)
    	assert( compareUTF8("ω", "ὤ", _HK_COMP_DIA_SENSITIVE) == -1);
    	assert( compareUTF8("ω", "ὤ", _HK_COMP_INSENSITIVE) == 0);
 
+
+
+   	len = 0;
+   	accentSyllable((UCS2*)buf, &len, 0x0042, true, PRECOMPOSED_WITH_PUA_MODE);
+   	assert (len == 1);
+   	assert (memcmp(buf, (UCS2[]){GREEK_CAPITAL_LETTER_BETA}, 1 * sizeof(UCS2)) == 0);
+
+
+
    	buf[0] = GREEK_SMALL_LETTER_ALPHA;
    	len = 1;
    	accentSyllable((UCS2*)buf, &len, ACUTE, true, PRECOMPOSED_WITH_PUA_MODE);

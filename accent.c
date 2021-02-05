@@ -295,6 +295,64 @@ UCS2 letters[NUM_VOWEL_CODES][NUM_ACCENT_CODES] = {
     }
 };
 
+const UCS2 latinToGreekUpper[26] = {
+GREEK_CAPITAL_LETTER_ALPHA, //0x0041
+GREEK_CAPITAL_LETTER_BETA,
+GREEK_CAPITAL_LETTER_PSI,
+GREEK_CAPITAL_LETTER_DELTA,
+GREEK_CAPITAL_LETTER_EPSILON,
+GREEK_CAPITAL_LETTER_PHI,
+GREEK_CAPITAL_LETTER_GAMMA,
+GREEK_CAPITAL_LETTER_ETA,
+GREEK_CAPITAL_LETTER_IOTA,
+GREEK_CAPITAL_LETTER_XI,
+GREEK_CAPITAL_LETTER_KAPPA,
+GREEK_CAPITAL_LETTER_LAMDA,
+GREEK_CAPITAL_LETTER_MU,
+GREEK_CAPITAL_LETTER_NU,
+GREEK_CAPITAL_LETTER_OMICRON,
+GREEK_CAPITAL_LETTER_PI,
+GREEK_LETTER_DIGAMMA,
+GREEK_CAPITAL_LETTER_RHO,
+GREEK_CAPITAL_LETTER_SIGMA,
+GREEK_CAPITAL_LETTER_TAU,
+GREEK_CAPITAL_LETTER_THETA,
+GREEK_CAPITAL_LETTER_OMEGA,
+GREEK_SMALL_LETTER_FINAL_SIGMA,
+GREEK_CAPITAL_LETTER_CHI,
+GREEK_CAPITAL_LETTER_UPSILON,
+GREEK_CAPITAL_LETTER_ZETA
+};
+
+const UCS2 latinToGreekLower[26] = {
+GREEK_SMALL_LETTER_ALPHA, //0x0061
+GREEK_SMALL_LETTER_BETA,
+GREEK_SMALL_LETTER_PSI,
+GREEK_SMALL_LETTER_DELTA,
+GREEK_SMALL_LETTER_EPSILON,
+GREEK_SMALL_LETTER_PHI,
+GREEK_SMALL_LETTER_GAMMA,
+GREEK_SMALL_LETTER_ETA,
+GREEK_SMALL_LETTER_IOTA,
+GREEK_SMALL_LETTER_XI,
+GREEK_SMALL_LETTER_KAPPA,
+GREEK_SMALL_LETTER_LAMDA,
+GREEK_SMALL_LETTER_MU,
+GREEK_SMALL_LETTER_NU,
+GREEK_SMALL_LETTER_OMICRON,
+GREEK_SMALL_LETTER_PI,
+GREEK_SMALL_LETTER_DIGAMMA,
+GREEK_SMALL_LETTER_RHO,
+GREEK_SMALL_LETTER_SIGMA,
+GREEK_SMALL_LETTER_TAU,
+GREEK_SMALL_LETTER_THETA,
+GREEK_SMALL_LETTER_OMEGA,
+GREEK_SMALL_LETTER_FINAL_SIGMA,
+GREEK_SMALL_LETTER_CHI,
+GREEK_SMALL_LETTER_UPSILON,
+GREEK_SMALL_LETTER_ZETA
+};
+
 #define NOCHAR 0
 
 #define NOT_ACCENTABLE_CHAR 1
@@ -1659,7 +1717,7 @@ UCS2 getSpacingDiacritic(int diacritic)
 
 //wasm / emscripten / webassembly
 //emcc -std=gnu99 -Oz -s STANDALONE_WASM -s EXPORTED_FUNCTIONS="['_accentSyllable2','_stripDiacritics']" -Wl,--no-entry "utilities.c" "accent.c" -o "hoplitekb.wasm"
-int accentSyllable2(UCS2 *ucs2String, size_t len, int accentToAdd, int toggleOff, int unicodeMode)
+int accentSyllable2(UCS2 *ucs2String, size_t len, UCS2 accentToAdd, int toggleOff, int unicodeMode)
 {
     accentSyllable(ucs2String, &len, accentToAdd, toggleOff, unicodeMode);
     return len;
@@ -1829,9 +1887,13 @@ void accentContext(UCS2 *str, int *len, int cursorPos)
 */
 
 //there should be room for a least MAX_COMBINING more characters at the end of ucs2String, in case it needs to grow
-void accentSyllable(UCS2 *ucs2String, size_t *len, int accentToAdd, bool toggleOff, int unicodeMode)
+void accentSyllable(UCS2 *ucs2String, size_t *len, UCS2 accentToAdd, bool toggleOff, int unicodeMode)
 {
-    /* remove?
+    /*
+    *ucs2String = GREEK_CAPITAL_LETTER_BETA;
+    *len = 1;
+    return;
+     remove?
     if (accentToAdd == UNDERDOT)
     {
         if (ucs2String[*len - 1] == COMBINING_UNDERDOT)
@@ -1847,7 +1909,19 @@ void accentSyllable(UCS2 *ucs2String, size_t *len, int accentToAdd, bool toggleO
         }
         return;
     }
-*/
+    */
+    //latin to greek transliteration
+    if (accentToAdd >= 0x0061 && accentToAdd <= 0x007A) {
+        *len = 1;
+        *ucs2String = latinToGreekLower[accentToAdd - 0x0061];
+        return;
+    }
+    else if (accentToAdd >= 0x0041 && accentToAdd <= 0x005A) {
+        *len = 1;
+        *ucs2String = latinToGreekUpper[accentToAdd - 0x0041];
+        return;
+    }
+
     if (unicodeMode != PRECOMPOSED_MODE && unicodeMode != PRECOMPOSED_WITH_PUA_MODE && unicodeMode != COMBINING_ONLY_MODE && unicodeMode != PRECOMPOSED_HC_MODE)
     {
         unicodeMode = PRECOMPOSED_MODE;

@@ -2,65 +2,36 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
+<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1" />
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
 <script src="https://code.jquery.com/jquery-1.12.4.min.js"
 integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ="
 crossorigin="anonymous"></script>
 <script>
 
-
-    // Check for wasm support.
-    if (!('WebAssembly' in window)) {
-      alert('you need a browser with wasm support enabled :(');
-    }
-
-    // Loads a WebAssembly dynamic library, returns a promise.
-    // imports is an optional imports object
-/*
-function fetchAndInstantiate(url, importObject) {
-  return fetch(url).then(response =>
-    response.arrayBuffer()
-  ).then(bytes =>
-    WebAssembly.instantiate(bytes, importObject)
-  ).then(results =>
-    results.instance
-  );
+// Check for wasm support.
+if (!('WebAssembly' in window)) {
+    alert('you need a browser with wasm support enabled :(');
 }
-    */
-    function loadWebAssembly(filename, imports) {
-      // Fetch the file and compile it
-const importObject = {
-  imports: {
-    imported_func: function(arg) {
-      console.log(arg);
-    }
-  }
-};
-      return fetch(filename)
-        .then(response => response.arrayBuffer())
-        .then(buffer => WebAssembly.compile(buffer))
-        .then(module => {
-          // Create the instance.
-          return WebAssembly.instantiate(module);
-        });
-    }
 
-function stripDiacriticsLocal(origChars) {
-    
-    var len = origChars.length;
-    //add letter and any combining diacritics to the buffer as code points
-    for (var i = 0; i < len && i < 1024; i++) {
-        wasmBuffer[i] = origChars.codePointAt(i);
-    }
-
-    var stripMode = $("input:radio[name='stripMode']:checked").val();
-
-    len = stripDiacritics2(wasmBuffer.byteOffset, len, stripMode);
-    //transform the returned code points back to a string
-    var newLetter = "";
-    for (var i = 0; i < len; i++) {
-        newLetter += String.fromCodePoint(wasmBuffer[i]);
-    }
-    return newLetter;
+function loadWebAssembly(filename, imports) {
+    // Fetch the file and compile it
+    const importObject = {
+        imports: {
+            imported_func: function(arg) {
+                console.log(arg);
+            }
+        }
+    };
+    return fetch(filename)
+    .then(response => response.arrayBuffer())
+    .then(buffer => WebAssembly.compile(buffer))
+    .then(module => {
+        return WebAssembly.instantiate(module);
+    });
 }
 
 var wasmBuffer;
@@ -71,30 +42,47 @@ var stripDiacritics2;
 var compareWASM;
 var convertWASM;
 
-loadWebAssembly('hoplitekb.wasm')
-  .then(instance => {
-    var exports = instance.exports;
-    accentSyllableWASM = exports.accentSyllable2;
-    stripDiacritics2 = exports.stripDiacritics;
-    convertWASM = exports.convertString;
-    compareWASM = exports.compare;
-    var memory = exports.memory;
+loadWebAssembly('hoplitekb.wasm?v=7')
+    .then(instance => {
+        var exports = instance.exports;
+        accentSyllableWASM = exports.accentSyllable2;
+        stripDiacritics2 = exports.stripDiacritics;
+        convertWASM = exports.convertString;
+        compareWASM = exports.compare;
+        var memory = exports.memory;
 
-    wasmBuffer = new Uint16Array(memory.buffer, 0, 1024);
-    wasmBuffer1 = new Uint16Array(memory.buffer, 1024, 1024);
-    wasmBuffer2 = new Uint16Array(memory.buffer, 2048, 1024);
-    
-    // now we are ready, set up the button so the user can run the code
-    var button = document.getElementById('compareButton');
-    button.value = 'Call a method in the WebAssembly module';
-    button.addEventListener('click', compareLocal);
-    
-  }
+        wasmBuffer = new Uint16Array(memory.buffer, 0, 1024);
+        wasmBuffer1 = new Uint16Array(memory.buffer, 1024, 1024);
+        wasmBuffer2 = new Uint16Array(memory.buffer, 2048, 1024);
+        
+        // now we are ready, set up the button so the user can run the code
+        var button = document.getElementById('compareButton');
+        button.value = 'Call a method in the WebAssembly module';
+        button.addEventListener('click', compareLocal);  
+    }
 );
 
-function convertLocal()
+function stripDiacriticsLocal(origChars) {
+    
+    var len = origChars.length;
+    //add letter and any combining diacritics to the buffer as code points
+    for (var i = 0; i < len && i < 1024; i++) {
+        wasmBuffer2[i] = origChars.codePointAt(i);
+    }
+
+    var stripMode = $("input:radio[name='stripMode']:checked").val();
+
+    len = stripDiacritics2(wasmBuffer2.byteOffset, len, stripMode);
+    //transform the returned code points back to a string
+    var newLetter = "";
+    for (var i = 0; i < len; i++) {
+        newLetter += String.fromCodePoint(wasmBuffer2[i]);
+    }
+    return newLetter;
+}
+
+function convertLocal(a)
 {
-    var a = $("#inp").val();
     var bufferCapacity = 1000;
     for (var i = 0; i < a.length && i < bufferCapacity; i++) {
         wasmBuffer1[i] = a.codePointAt(i);
@@ -113,6 +101,7 @@ function convertLocal()
     $("#conv2").val(strToCodePoints(newStr));
 
 }
+
 var _MACRON     = 1;
 var _SMOOTH     = 2;
 var _ROUGH      = 4;
@@ -154,13 +143,6 @@ function compareLocal()
     $("#compareResult").html(x);
 }
 
-function test()
-{
-    var a = $("#inp").val();
-
-    $("#inp").val( stripDiacriticsLocal(a) );
-}
-
 function strToCodePoints(str)
 {
     var a = "";
@@ -174,34 +156,18 @@ function start() {
 	$(".gkinput").keypress(handleKey);
     //$(".gkinput").unbind("keypress");
 
-    $("#inp").keyup(function(){
+    $("#inp").keyup(function() {
         
         $("#codes").val( strToCodePoints(this.value) );
-
         var stripped = stripDiacriticsLocal(this.value);
         $("#codes2").val(stripped);
-        convertLocal();
-
         $("#codes3").val( strToCodePoints(stripped) );
+        //convertLocal(this.value);
     }); 
+    //$("#inp").on("change", function(){convertLocal()});
 }
 
-var la = ["a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t","u","v","w","x","y","z","A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T","U","V","W","X","Y","Z"];
-var gr = ["α","β","ψ","δ","ε","φ","γ","η","ι","ξ","κ","λ","μ","ν","ο","π","ϝ","ρ","σ","τ","θ","ω","ς","χ","υ","ζ","Α","Β","Ψ","Δ","Ε","Φ","Γ","Η","Ι","Ξ","Κ","Λ","Μ","Ν","Ο","Π","Ϝ","Ρ","Σ","Τ","Θ","Ω","Σ","Χ","Υ","Ζ"];
 var forceLowercase = true;
-function transliterate(char)
-{
-    var f = $("input:radio[name='lowerCaseMode']:checked").val();
-
-    var theChar = (f != 0) ? char.toLowerCase() : char;
-    var idx = la.indexOf(theChar);
-    if (idx > -1) {
-        return gr[idx];
-    }
-    else {
-        return char;
-    }
-}
 
 function accentSyllable(origChars, key) {
     var len = origChars.length;
@@ -219,75 +185,37 @@ function accentSyllable(origChars, key) {
     }
 
     //let win1251decoder = new TextDecoder('utf-16le');
-    return [len, newLetter];
+    return newLetter;
 }
+
 var unicodeMode = 0;
-function handleKey(evt) {
+function handleKey(e) {
     var val = this.value;
-    evt = evt || window.event;
-
-    var charCode = typeof(evt.which) == "number" ? evt.which : evt.keyCode;
-
-    if (charCode && charCode > 64 && charCode < 123) //letter
+    e = e || event;
+    if (typeof(this.selectionStart) == "number" && typeof(this.selectionEnd) == "number") 
     {
         var start = this.selectionStart;
         var end = this.selectionEnd;
+        var newLetter = "";
+        var replacing = 0;
+        var charCode = typeof(e.which) == "number" ? e.which : e.keyCode;
         var key = String.fromCharCode(charCode);
 
-        var mappedChar = transliterate(key);
-        var charsToReplace = 0;
-        this.value = val.slice(0, start - charsToReplace) + mappedChar + val.slice(end);
-        // Move the caret
-        this.selectionStart = this.selectionEnd = start + 1 - charsToReplace;
-        return false;
-    }
-    else if (charCode && charCode > /*47 blocking underdot here*/47 && charCode < 58) { //number: 0-9 are 48-57
-        var key = String.fromCharCode(charCode);
-        var hckey = 0;
-        switch( parseInt(key) ) {
-            case 1:
-                hckey = 5; //rough
-                break;
-            case 2:
-                hckey = 6; //smooth
-                break;
-            case 3:
-                hckey = 1; //acute
-                break;
-            case 4:
-                hckey = 3; //grave
-                break;
-            case 5:
-                hckey = 2; //circumflex
-                break;
-            case 6:
-                hckey = 4; //macron
-                break;
-            case 7:
-                hckey = 10; //breve
-                break;
-            case 8:
-                hckey = 7; //iota subscript
-                break;
-            case 9:
-                hckey = 9; //diaeresis
-                break;
-            case 0:
-                hckey = 11; //underdot
-                break;
+        if (charCode && charCode > 64 && charCode < 123) //transliterate letter
+        {
+            newLetter = accentSyllable("", key.codePointAt(0));
         }
-        var start, end;
-        if (typeof(this.selectionStart) == "number" && typeof(this.selectionEnd) == "number") {
-            // Non-IE browsers and IE 9+
-            start = this.selectionStart;
-            end = this.selectionEnd;
+        else if (charCode && charCode > 47 && charCode < 58) //number: 0-9 are 48-57
+        { 
+            //underdot,rough,smooth,acute,grave,circ,macron,breve,iotasub,diaeresis
+            var diacriticKeys = [11,5,6,1,3,2,4,10,7,9];
+            var hckey = diacriticKeys[ parseInt(key) ];
 
             var combining = [0x0300, 0x0301, 0x0304, 0x0306, 0x0308, 0x0313, 0x0314, 0x0323, 0x0342, 0x0345];
-            var off = 1;
-            for (var i = start; i > -1; i--)
-            {
+            var offset = 1;
+            for (var i = start; i > -1; i--) {
                 if (combining.indexOf(val.codePointAt(i - 1)) > -1) {
-                    off++;
+                    offset++;
                 }
                 else {
                     break;
@@ -296,21 +224,18 @@ function handleKey(evt) {
 
             unicodeMode = $("input:radio[name='unicodeMode']:checked").val();
 
-            var ret = accentSyllable(val.slice(start - off, start), hckey.toString());
-            var newLetter = ret[1];
-            var charsToReplace = start - (start - off);
- 
-            if (ret[0] > 0 && newLetter != "")
-            {
-                //update the input/textarea
-                this.value = val.slice(0, start - charsToReplace) + newLetter + val.slice(end);
-                // Move the caret
-                this.selectionStart = this.selectionEnd = (start - charsToReplace) + ret[0];
-            }
+            newLetter = accentSyllable(val.slice(start - offset, start), hckey);
+            replacing = start - (start - offset);
+        }
 
-        } 
-        return false;
-    }
+        if (newLetter.length > 0) {
+            //update the input/textarea
+            this.value = val.slice(0, start - replacing) + newLetter + val.slice(end);
+            // Move the caret
+            this.selectionStart = this.selectionEnd = (start - replacing) + newLetter.length;
+            return false;
+        }
+    }    
     return true;
 }
 
@@ -352,7 +277,6 @@ body {
     border-radius: 6px;
     border: 2px solid #666;
     margin:6px 0px;
-
 }
 
 .gkinput:focus, .gkinputcodes:focus, .gkinputnontyping:focus{
