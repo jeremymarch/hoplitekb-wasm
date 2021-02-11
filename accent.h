@@ -60,6 +60,7 @@ enum {
     PRECOMPOSED_HC_MODE //this is legacy for the hoplite challenge app which uses combining macron even if no other diacritics
 };
 
+UCS2 transliterate(UCS2 input);
 
 void allowSpacingDiacritics(bool val);
 
@@ -84,5 +85,6 @@ bool isCombiningDiacritic(UCS2 l);
 //int hcucHex(const unsigned char *utf8, int bufferLen, char *buffer);
 
 int convertString(UCS2 *str, size_t len, UCS2 *buffer, size_t bufferCapacity, int unicodeMode);
+int testCopyString(size_t len, size_t bufferCapacity, int unicodeMode);
 
 #endif /* accent_h */

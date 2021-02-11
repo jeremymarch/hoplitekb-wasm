@@ -1844,13 +1844,14 @@ int stripDiacritics(UCS2 *ucs2String, size_t len, bool removeNonGreek)
     return len;
 }
 
-/*
-int convert(char *utf8, UCS2 *ucs2String, int len, int unicodemode)
+int testCopyString(size_t len, size_t bufferCapacity, int unicodeMode)
 {
-    //convert to ucs2 minding len buffer length
-    //then walk the ucs2 string converting it in place
+    /*for (size_t i = 0; i < len; i++)
+    {
+        buffer[i] = 0x03B1;
+    }*/
+    return 0;
 }
-*/
 
 int convertString(UCS2 *str, size_t len, UCS2 *buffer, size_t bufferCapacity, int unicodeMode)
 {
@@ -1863,14 +1864,20 @@ int convertString(UCS2 *str, size_t len, UCS2 *buffer, size_t bufferCapacity, in
     size_t i = 0;
     size_t tempBLen = 0;
 
-    for ( ; i < len && bufferLen + MAX_COMBINING < bufferCapacity; ) {
+    //printf("\n\nn0 %zu, %zu\n", str, buffer);
+
+    for ( ; i < len && (size_t)(b2 - buffer) + MAX_COMBINING < bufferCapacity; ) {
+        //printf("a%zu, %zu, %zu, %zu\n", i, &str[i], len - i, len);
         size_t letterLen = analyzeLetter(&str[i], len - i, &baseLetter, &diacritics, &type);
+
         makeLetter(b2, &tempBLen, baseLetter, diacritics, unicodeMode);
+        //printf("letter: %zu, len: %lu\n", b2, tempBLen);
         i += letterLen;
         b2 += tempBLen;
         bufferLen += tempBLen;
     }
-    return bufferLen;
+    //printf("cs len: %zu, %zu\n", (b2 - buffer), bufferLen);
+    return (b2 - buffer);//bufferLen;
 }
 
 /*
@@ -1885,6 +1892,22 @@ void accentContext(UCS2 *str, int *len, int cursorPos)
 }
 
 */
+
+UCS2 transliterate(UCS2 input) {
+    UCS2 temp = 0;
+    if (input >= 0x0061 && input <= 0x007A) {
+        temp = latinToGreekLower[input - 0x0061];
+    }
+    else if (input >= 0x0041 && input <= 0x005A) {
+        temp = latinToGreekUpper[input - 0x0041];
+    }
+    if (temp > 0) {
+        return temp;
+    }
+    else {
+        return input;
+    }
+}
 
 //there should be room for a least MAX_COMBINING more characters at the end of ucs2String, in case it needs to grow
 void accentSyllable(UCS2 *ucs2String, size_t *len, UCS2 accentToAdd, bool toggleOff, int unicodeMode)

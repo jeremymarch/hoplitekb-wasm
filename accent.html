@@ -19,13 +19,13 @@ if (!('WebAssembly' in window)) {
 
 function loadWebAssembly(filename, imports) {
     // Fetch the file and compile it
-    const importObject = {
+    /*const importObject = {
         imports: {
-            imported_func: function(arg) {
+            someFunction: function(arg) {
                 console.log(arg);
             }
         }
-    };
+    };*/
     return fetch(filename)
     .then(response => response.arrayBuffer())
     .then(buffer => WebAssembly.compile(buffer))
@@ -34,37 +34,42 @@ function loadWebAssembly(filename, imports) {
     });
 }
 
-var wasmBuffer;
+var wasmBuffer0;
 var wasmBuffer1;
 var wasmBuffer2;
 var accentSyllableWASM;
 var stripDiacritics2;
 var compareWASM;
 var convertWASM;
+var transliterateWASM;
 
-var wasmBufferLength = 1024;
-loadWebAssembly('hoplitekb.wasm?v=7')
+var wasmBufferLength = 256;
+var memory;
+//var memory = new WebAssembly.Memory({initial:2048, maximum:2048, shared: true});
+loadWebAssembly('hoplitekb.wasm?v=9', { js: { mem: memory } })
     .then(instance => {
         var exports = instance.exports;
         accentSyllableWASM = exports.accentSyllable2;
         stripDiacritics2 = exports.stripDiacritics;
-        convertWASM = exports.convertString;
+        convertWASM = exports.testCopyString;// exports.convertString;
         compareWASM = exports.compare;
-        var memory = exports.memory;
+        transliterateWASM = exports.transliterate;
+        memory = exports.memory;
+
+        //memory = new WebAssembly.Memory({initial:2048, maximum:2048, shared: true});
+        console.log("memory: " + memory.buffer.byteLength);
 
         //https://rob-blackbourn.github.io/blog/webassembly/wasm/array/arrays/javascript/c/2020/06/07/wasm-arrays.html
         //offset is in bytes, length is in array elements
-        var offset = 0;
-        wasmBuffer = new Uint16Array(memory.buffer, offset, wasmBufferLength);
+        //https://stackoverflow.com/questions/15417310/why-typed-array-constructors-require-offset-to-be-multiple-of-underlying-type-si
+        var offset = 2; //don't set start at zero (null), use 2 for proper alignment
+        wasmBuffer0 = new Uint16Array(memory.buffer, offset, wasmBufferLength);
+
         offset += wasmBufferLength * Uint16Array.BYTES_PER_ELEMENT;
         wasmBuffer1 = new Uint16Array(memory.buffer, offset, wasmBufferLength);
+
         offset += wasmBufferLength * Uint16Array.BYTES_PER_ELEMENT;
         wasmBuffer2 = new Uint16Array(memory.buffer, offset, wasmBufferLength);
-        
-        // now we are ready, set up the button so the user can run the code
-        var button = document.getElementById('compareButton');
-        button.value = 'Call a method in the WebAssembly module';
-        button.addEventListener('click', compareLocal);  
     }
 );
 
@@ -73,39 +78,53 @@ function stripDiacriticsLocal(origChars) {
     var len = origChars.length;
     //add letter and any combining diacritics to the buffer as code points
     for (var i = 0; i < len && i < wasmBufferLength; i++) {
-        wasmBuffer2[i] = origChars.codePointAt(i);
+        wasmBuffer1[i] = origChars.codePointAt(i);
     }
 
     var stripMode = $("input:radio[name='stripMode']:checked").val();
 
-    len = stripDiacritics2(wasmBuffer2.byteOffset, len, stripMode);
+    len = stripDiacritics2(wasmBuffer1.byteOffset, len, stripMode);
+    
     //transform the returned code points back to a string
     var newLetter = "";
     for (var i = 0; i < len; i++) {
-        newLetter += String.fromCodePoint(wasmBuffer2[i]);
+        newLetter += String.fromCodePoint(wasmBuffer1[i]);
     }
     return newLetter;
 }
 
-function convertLocal(a)
+function convertLocal()
 {
-    var bufferCapacity = wasmBufferLength - 24;
+    console.log("converttestingz");
+    //var a = $("#inp").val();
+    //var bufferCapacity = wasmBufferLength - 24;
+    /*
     for (var i = 0; i < a.length && i < bufferCapacity; i++) {
-        wasmBuffer1[i] = a.codePointAt(i);
+        wasmBuffer0[i] = a.codePointAt(i);
+        console.log("convert1: " + strToCodePoints(a.codePointAt(i)) + ", len: " + a.length);
     }
+    */
+    //var unicodeMode = $("input:radio[name='convertMode']:checked").val();
 
-    var unicodeMode = $("input:radio[name='convertMode']:checked").val();
-
-    var newStringLen = convertWASM(wasmBuffer1.byteOffset, a.length, wasmBuffer2.byteOffset, bufferCapacity, parseInt(unicodeMode));
-
-    var newStr = "";
+    //var newStringLen = convertWASM(1, 1, 1);
+    
+    //var newStr = "";
+    /*
     for (var i = 0; i < newStringLen; i++) {
-        newStr += String.fromCodePoint(wasmBuffer2[i]);
+        newStr += String.fromCodePoint(wasmBuffer1[i]);
+        console.log("convert2: " + String.fromCodePoint(wasmBuffer1[i]) + ", len: " + newStringLen);
     }
+    */
+    /*
+    for (var i = 0; i < wasmBufferLength; i++) {
+        wasmBuffer0[i] = 0;
+        wasmBuffer1[i] = 0;
+        wasmBuffer2[i] = 0;
+    }*/
 
-    $("#conv1").val(newStr);
-    $("#conv2").val(strToCodePoints(newStr));
-
+    //console.log("ptr: " + wasmBuffer0.byteOffset + ", " + wasmBuffer1.byteOffset);
+    //$("#conv1").val(newStr);
+    //$("#conv2").val(strToCodePoints(newStr));
 }
 
 var _MACRON     = 1;
@@ -134,12 +153,12 @@ function compareLocal()
     wasmBuffer2.set(bE);
     */
     for (var i = 0; i < a.length && i < wasmBufferLength; i++) {
-        wasmBuffer1[i] = a.codePointAt(i);
+        wasmBuffer0[i] = a.codePointAt(i);
     }
     for (var i = 0; i < b.length && i < wasmBufferLength; i++) {
-        wasmBuffer2[i] = b.codePointAt(i);
+        wasmBuffer1[i] = b.codePointAt(i);
     }
-    var x = compareWASM(wasmBuffer1.byteOffset, a.length, wasmBuffer2.byteOffset, b.length, compareType);
+    var x = compareWASM(wasmBuffer0.byteOffset, a.length, wasmBuffer1.byteOffset, b.length, compareType);
     /*
     var decoder = new TextDecoder("utf-16");
     var a2 = decoder.decode(wasmBuffer1.slice(aE.length));
@@ -158,16 +177,31 @@ function strToCodePoints(str)
     return a.trim();
 }
 
-function doall(e) {
+function doAll(e)
+{
     var a = handleKey.call(this, e);
-    //convertLocal.call(this, this.value);
+    //setTimeout(convertLocal, 500);
     return a;
 }
 
 function start() {
+const supported = (() => {
+    try {
+        if (typeof WebAssembly === "object"
+            && typeof WebAssembly.instantiate === "function") {
+            const module = new WebAssembly.Module(Uint8Array.of(0x0, 0x61, 0x73, 0x6d, 0x01, 0x00, 0x00, 0x00));
+            if (module instanceof WebAssembly.Module)
+                return new WebAssembly.Instance(module) instanceof WebAssembly.Instance;
+        }
+    } catch (e) {
+    }
+    return false;
+})();
+console.log(supported ? "WebAssembly is supported" : "WebAssembly is not supported");
+
 	$(".gkinput").keypress(handleKey);
     //$(".gkinput").unbind("keypress");
-
+/*
     $("#inp").keyup(function() {
         
         $("#codes").val( strToCodePoints(this.value) );
@@ -175,8 +209,10 @@ function start() {
         $("#codes2").val(stripped);
         $("#codes3").val( strToCodePoints(stripped) );  
         convertLocal(this.value); 
-    }); 
+    }); */
     //$("#inp").on("change", function(){convertLocal()});
+
+    $("#compareButton").click(compareLocal);
 }
 
 var forceLowercase = true;
@@ -185,17 +221,25 @@ function accentSyllable(origChars, key) {
     var len = origChars.length;
     //add letter and any combining diacritics to the buffer as code points
     for (var i = 0; i < len && i < wasmBufferLength; i++) {
-        wasmBuffer[i] = origChars.codePointAt(i);
+        wasmBuffer0[i] = origChars.codePointAt(i);
+        console.log("accent1: " + origChars.codePointAt(i));
     }
-
-    len = accentSyllableWASM(wasmBuffer.byteOffset, len, key, 1, parseInt(unicodeMode) );
+    console.log("accent1a: " + len + ", " + key);
+    len = accentSyllableWASM(wasmBuffer0.byteOffset, len, key, 1, parseInt(unicodeMode) );
 
     //transform the returned code points back to a string
     var newLetter = "";
     for (var i = 0; i < len && i < wasmBufferLength; i++) {
-        newLetter += String.fromCodePoint(wasmBuffer[i]);
+        newLetter += String.fromCodePoint(wasmBuffer0[i]);
+        console.log("accent2: " + String.fromCodePoint(wasmBuffer0[i]));
     }
-
+    /*
+    for (var i = 0; i < 10; i++) {
+        wasmBuffer0[i] = 0;
+        wasmBuffer1[i] = 0;
+        wasmBuffer2[i] = 0;
+    }*/
+    console.log("ptr2: " + wasmBuffer0.byteOffset + ", " + wasmBuffer0.length);
     //let win1251decoder = new TextDecoder('utf-16le');
     return newLetter;
 }
@@ -212,11 +256,14 @@ function handleKey(e) {
         var newLetter = "";
         var replacing = 0;
         var charCode = typeof(e.which) == "number" ? e.which : e.keyCode;
+        console.log("handlekey1: " + charCode);
         var key = String.fromCharCode(charCode);
 
         if (charCode && charCode > 64 && charCode < 123) //transliterate letter
         {
-            newLetter = accentSyllable("", key.codePointAt(0));
+            //newLetter = accentSyllable("", key.codePointAt(0));
+            newLetter = String.fromCharCode( transliterateWASM( key.codePointAt(0) ) );
+            console.log("new: " + newLetter);
         }
         else if (charCode && charCode > 47 && charCode < 58) //number: 0-9 are 48-57
         { 
@@ -246,14 +293,31 @@ function handleKey(e) {
             this.value = val.slice(0, start - replacing) + newLetter + val.slice(end);
             // Move the caret
             this.selectionStart = this.selectionEnd = (start - replacing) + newLetter.length;
+            doElse();
             return false;
         }
         else if (charCode && ((charCode > 47 && charCode < 58) || (charCode > 64 && charCode < 123)))
         {
+            doElse();
             return false; //this prevents numbers from being possible at very start of text field
         }
     }    
+    doElse();
     return true; //this allows most punctuation to pass through
+}
+
+function doElse()
+{
+    
+    var val = $("#inp").val();
+    
+    $("#codes").val( strToCodePoints(val) );
+    var stripped = stripDiacriticsLocal(val);
+    $("#codes2").val(stripped);
+    $("#codes3").val( strToCodePoints(stripped) );  
+    
+    //convertLocal(val); 
+    
 }
 
 </script>
@@ -310,25 +374,25 @@ body {
     | <input type="radio" name="lowerCaseMode" value="1">Force Lowercase
     <input type="radio" checked name="lowerCaseMode" value="0">Allow Uppercase
 
-	<input class="gkinput" type="text" id="inp"/>
-    <input class="gkinputcodes" type="text" id="codes"/>
+	<input class="gkinput" type="text" id="inp" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+    <input class="gkinputcodes" type="text" id="codes" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
     <br><br>
     <br>Strip diacritics: <input type="radio" checked name="stripMode" value="1">strip non-Greek
     <input type="radio" name="stripMode" value="0">keep non-Greek
-    <input class="gkinputnontyping" type="text" id="codes2"/>
-    <input class="gkinputcodes" type="text" id="codes3"/>
+    <input class="gkinputnontyping" type="text" id="codes2" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+    <input class="gkinputcodes" type="text" id="codes3" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
     <br><br>
     <br>Convert:  
     <input type="radio" name="convertMode" value="0">Precomposed
     <input type="radio" name="convertMode" value="1">Precomposed with PUA
     <input type="radio" checked name="convertMode" value="2">Combining-only<br>
-    <input class="gkinputnontyping" type="text" id="conv1"/>
-    <input class="gkinputcodes" type="text" id="conv2"/>
+    <input class="gkinputnontyping" type="text" id="conv1" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+    <input class="gkinputcodes" type="text" id="conv2" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
 
     <br><br><br>
     <button id="compareButton">compare</button> <span id="compareResult"></span><br>
-    <input class="gkinput" type="text" id="comp1"/><br>
-    <input class="gkinput" type="text" id="comp2"/><br>
+    <input class="gkinput" type="text" id="comp1" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/><br>
+    <input class="gkinput" type="text" id="comp2" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/><br>
     </div>
 </body>
 </html>
